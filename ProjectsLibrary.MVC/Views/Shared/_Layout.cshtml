@@ -1,0 +1,105 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var email = User.FindFirst("employeeEmail")?.Value ?? "email@email";
+    var name = User.FindFirst("employeeName")?.Value ?? "name";
+    var role = User.FindFirst("employeeRole")?.Value ?? "role";
+    var roleLevel = EmployeeRoleExtension.StringToRole(role);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ProjectsLibrary - @ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="icon" type="~/image/svg+xml" href="~/icons/projectsLibrary.svg" />
+    <link rel="stylesheet" href="~/lib/datatableslib/datatables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ProjectsLibrary.MVC.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <nav id="sidebar" class="close">
+        <ul>
+            <li>
+                <span class="logo">ProjectsLibrary</span>
+                <button onclick=toggleSidebar() id="toggle-btn">
+                    <img src="~/icons/menu.svg" alt="menu" />
+                </button>
+            </li>
+            <li class="@(currentController == "Home" ? "active" : "")">
+                <a asp-controller="Home" asp-action="Index">
+                    <img src="~/icons/home.svg" alt="home" />
+                    <span>Home</span>
+                </a>
+            </li>
+
+            @{
+                if (roleLevel >= EmployeeRole.Employee)
+                {
+                    <li class="@(currentController == "Tasks" ? "active" : "")">
+                        <a asp-controller="Tasks" asp-action="Index">
+                            <img src="~/icons/tasks.svg" alt="Tasks" />
+                            <span>Tasks</span>
+                        </a>
+                    </li>
+                    <li class="@(currentController == "Projects" ? "active" : "")">
+                        <a asp-controller="Projects" asp-action="Index">
+                            <img src="~/icons/projects.svg" alt="projects" />
+                            <span>Projects</span>
+                        </a>
+                    </li>
+                }
+                if (roleLevel >= EmployeeRole.Manager)
+                {
+
+                    <li class="@(currentController == "Employees" ? "active" : "")">
+                        <a asp-controller="Employees" asp-action="Index">
+                            <img src="~/icons/employees.svg" alt="employees" />
+                            <span>Employees</span>
+                        </a>
+                    </li>
+                }
+                if (roleLevel >= EmployeeRole.Supervisor)
+                {
+                    <li class="@(currentController == "Companies" ? "active" : "")">
+                        <a asp-controller="Companies" asp-action="Index">
+                            <img src="~/icons/companies.svg" alt="companies" />
+                            <span>Companies</span>
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+
+        @if (User?.Identity?.IsAuthenticated == true)
+        {
+            <div class="user-info">
+                <p>@name</p>
+                <p>@email</p>
+                <p class="role-container">Role: @role</p>
+            </div>
+
+            <div class="signout-btn-container">
+                <form asp-controller="Employees" asp-action="Logout" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-light sidebar-signout-btn d-flex align-items-center justify-content-center gap-2">
+                        <span>Sign out</span>
+                        <img src="~/icons/signout.svg" alt="sign out icon" />
+                    </button>
+                </form>
+            </div>
+        }
+    </nav>
+    <main>
+        @RenderBody()
+    </main>
+
+    @* SCRIPTS LOADING *@
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/datatableslib/dataTables.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @* GLOBAL SCRIPTS *@
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @* SCRIPTS OF EACH VIEW *@
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

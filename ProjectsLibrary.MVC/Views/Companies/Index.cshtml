@@ -1,0 +1,244 @@
+﻿@model ProjectsLibrary.MVC.Models.Company.IndexCompanyViewModel;
+@{
+	ViewData["Title"] = "Companies";
+}
+
+<div class="container col-12 py-1">
+
+	<div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+		<button id="addCompanyBtn" class="btn btn-outline-secondary btn-dark text-clr-sec d-flex align-items-center gap-2">
+			<img src="/icons/plus.svg" alt="add">
+			<span>Add company</span>
+		</button>
+
+		<h6 class="text-center mb-0">
+			ProjectsLibrary &gt; <span class="text-clr-info">Companies</span>
+		</h6>
+	</div>
+
+	<div class="mb-4">
+		<input type="search"
+			   id="searchInput"
+			   class="form-control form-control-lg"
+			   placeholder="Search companies..."
+			   aria-label="Search companies"
+			   style="width: 100%;">
+	</div>
+
+	<div class="table-container">
+		<table id="companies-table" class="table table-bordered table-hover table-striped mb-0">
+			<thead class="table-dark">
+				<tr class="text-center">
+					<th style="width: 30%;">ID</th>
+					<th>Company</th>
+					<th class="text-center">Options</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- Server-side DataTable loading -->
+			</tbody>
+		</table>
+	</div>
+
+	<div id="addCompanyModal" class="modal fade" tabindex="-1" aria-labelledby="addCompanyModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered" style="width: 33rem;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 id="addCompanyModalTitle" class="modal-title"></h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form asp-action="Add" asp-controller="Companies" method="post">
+						<div class="mt-0 mb-2 pb-1">
+							<div class="input-group mb-3">
+								<label asp-for="CompanyAddDto.Name" class="input-group-text">Name</label>
+								<input id="addingCompanyNameInput" asp-for="CompanyAddDto.Name" class="form-control" placeholder="Enter company name..." />
+								<span asp-validation-for="CompanyAddDto.Name" class="invalid-feedback d-block"></span>
+							</div>
+						</div>
+						<div class="d-flex justify-content-between">
+							<button id="cancelAddBtn" type="button" class="btn btn-danger">Cancel</button>
+							<button id="addBtn" type="submit" class="btn btn-primary dt-btn-edit">Add</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="companyDeleteModal" tabindex="-1" aria-labelledby="companyDeleteLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered" style="width: 33rem;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 id="companyDeleteModalLabel" class="modal-title">Warning about deleting data about the company</h5>
+					<img src="icons/warning_black.svg" alt="" style="height: 35px;" />
+				</div>
+				<div class="modal-body">
+					<div class="pb-1">
+						<p class="text-center modal-text"></p>
+					</div>
+					<div class="d-flex justify-content-between">
+						<button id="cancelBtn" type="button" class="btn btn-danger">Cancel</button>
+						<button id="confirmBtn" type="button" class="btn btn-primary dt-btn-edit">Confirm</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+	<script type="text/javascript">
+		let table;
+		let searchTimeout;
+
+		$(document).ready(function () {
+			table = $('#companies-table').DataTable({
+				dom: "t<'row'<'col-6'i><'col-6'p>>",
+				processing: true,
+				serverSide: true,
+				orderFixed: false,
+				orderReset: false,
+				orderMulti: false,
+				order: [[0, 'asc']],
+				orderSequence: ['asc', 'desc'],
+				pageLength: 10,
+				pagingType: 'simple_numbers',
+				ajax: {
+				  url: 'Companies/Get',
+				  type: 'POST',
+				  dataType: 'json',
+				  data: function (d) {
+					var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
+					d.sortColumn = d.columns[order.column].name;
+					d.sortDirection = order.dir;
+					d.searchingValue = d.search.value;
+					d.searchableFieldsNames = [ 'name' ];
+				  }
+				},
+				columns: [
+					{
+						'data': null,
+						'name': 'Id',
+						'render': function (data, type, row) {
+							return renderIdColumn(row.id);
+						}
+					},
+					{
+						'data': null,
+						'name': 'Name',
+						'render': function (data, type, row) {
+							return renderNameColumn(row.id, row.name)
+						}
+					},
+					{
+						'data': null,
+						'render': function (data, type, row) {
+							return renderOptionsButtons(row.id, row.name)
+						}
+					}
+				],
+				columnDefs: [
+					{ visible: false, targets: 0 },
+					{
+						width: '16%',
+						targets: 2,
+						orderable: false
+					}
+				],
+			});
+		});
+
+		// Render columns functions
+		function renderIdColumn(id) {
+			return `<a href='/Companies/Details/${id}' class='dt-a-link'>${id}</a>`;
+		};
+
+		function renderNameColumn(id, name) {
+			return `<a href='/Companies/Details/${id}' class='dt-a-link'>${name ?? ''}</a>`;
+		};
+
+		function renderOptionsButtons(id, name) {
+			return `<div class='d-flex justify-content-center align-items-center gap-3'>
+						<a class='btn btn-sm dt-btn-edit' href='/Companies/Details/${id}' data-bs-toggle='tooltip' title='Edit company'>
+							<img src="icons/edit.svg" alt="edit" />
+						</a>
+						<a class='btn btn-sm btn-danger delete-btn' href='#' data-id='${id}' data-name='${name ?? ''}' data-bs-toggle='tooltip' title='Delete company'>
+							<img src="icons/delete.svg" alt="delete" />
+						</a>
+					</div>`;
+		};
+
+		// Search event
+		$("#searchInput").on("keyup", function (event) {
+			const val = $(this).val();
+
+			if (event.key === "Enter" || event.keyCode === 13) {
+				clearTimeout(searchTimeout);
+
+				table.search(val).draw();
+				return;
+			}
+
+			clearTimeout(searchTimeout);
+
+			searchTimeout = setTimeout(function () {
+				table.search(val).draw();
+			}, 1500);
+		});
+
+		// Add company events
+		$('#addCompanyBtn').on('click', function() {
+			var modalTitle = $('#addCompanyModalTitle');
+			modalTitle.text('Adding new company');
+
+			$('#addingCompanyNameInput').val('');
+
+			var modal = new bootstrap.Modal(document.getElementById('addCompanyModal'));
+			modal.show();
+		})
+
+		$('#cancelAddBtn').on('click', function() {
+			var modal = bootstrap.Modal.getInstance(document.getElementById('addCompanyModal'));
+			modal.hide();
+		});
+
+		// Delete modal window events
+		$(document).on('click', '.delete-btn', function(e) {
+			e.preventDefault();
+
+			const id = $(this).data('id');
+			const name = $(this).data('name');
+
+			$('#companyDeleteModal').data('companyId', id);
+			$('#companyDeleteModal').data('companyName', name);
+
+			$('#companyDeleteModal .modal-body p').text(`Are you sure you want to delete the ${name} company?`);
+
+			var modal = new bootstrap.Modal(document.getElementById('companyDeleteModal'));
+			modal.show();
+		});
+
+		$('#confirmBtn').on('click', function() {
+			const id = $('#companyDeleteModal').data('companyId');
+
+			$.ajax({
+				url: `Company/Delete/${id}`,
+				type: 'DELETE',
+				dataType: 'json', 
+				success: function (response) {
+					table.draw();
+				},
+			});
+
+			var modal = bootstrap.Modal.getInstance(document.getElementById('companyDeleteModal'));
+			modal.hide();
+		});
+
+		$('#cancelBtn').on('click', function() {
+			var modal = bootstrap.Modal.getInstance(document.getElementById('companyDeleteModal'));
+			modal.hide();
+		});
+	</script>
+}

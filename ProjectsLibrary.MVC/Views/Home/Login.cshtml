@@ -1,0 +1,97 @@
+﻿@model ProjectsLibrary.MVC.Models.Home.LoginViewModel;
+
+@{
+    ViewData["Title"] = "Login";
+}
+<body class="home">
+    <nav class="home-navbar bg-clr-dark">
+        <div class="nav-left">
+            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+            <a href="#" class="nav-link">About us</a>
+        </div>
+        <div class="nav-right">
+            <a class="nav-btn" asp-controller="Home" asp-action="Registration">Sign up</a>
+        </div>
+    </nav>
+
+    <div class="auth-container d-flex">
+        <div class="auth-form-section w-50 d-flex align-items-center justify-content-center p-5">
+            <div class="w-100">
+                <h2 class="text-center mb-3">Authorization</h2>
+                <div>
+                    <form asp-controller="Employees" asp-action="Login" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Employee.Email" class="form-label form-title"></label>
+                            <input asp-for="Employee.Email" class="form-control" type="email" />
+                            <span asp-validation-for="Employee.Email" class="invalid-feedback d-block"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Employee.Password" class="form-label form-title"></label>
+                            <input asp-for="Employee.Password" class="form-control" type="password" />
+                            <span asp-validation-for="Employee.Password" class="invalid-feedback d-block"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary dt-btn-edit w-100 mt-3">Sign In</button>
+                    </form>
+                    <div class="text-center mt-2">
+                        <p class="text-clr-main">
+                            Don't have an account?
+                            <a class="dt-a-link" asp-controller="Home" asp-action="Registration">Sign Up</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-info-section w-50 d-flex flex-column justify-content-center align-items-center text-clr-sec">
+            <img class="bg-picture" src="~/images/backgroundmain.jpg" alt="Registration">
+            <div class="bg-content glass w-100 h-100 d-flex flex-column align-items-center justify-content-center p-5">
+                <h2 class="text-clr-sec mb-5"><strong>PROJECTS LIBRARY</strong></h2>
+                <h4 class="text-clr-sec">
+                    Discover new possibilities with Projects Library — get started today
+                    and achieve faster, more efficient, and easier project management!
+                </h4>
+            </div>
+        </div>
+    </div>
+</body>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('form');
+            if (!form) return;
+
+            const inputs = form.querySelectorAll('input, select, textarea');
+
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    input.classList.remove('is-valid', 'is-invalid');
+                });
+                input.addEventListener('change', () => {
+                    input.classList.remove('is-valid', 'is-invalid');
+                });
+            });
+
+            form.addEventListener('submit', e => {
+                setTimeout(() => {
+                    inputs.forEach(input => {
+                        const errorSpan = input.closest('div').querySelector('.invalid-feedback');
+
+                        if (errorSpan) {
+                            const hasError = errorSpan.textContent.trim().length > 0;
+
+                            if (hasError) {
+                                input.classList.add('is-invalid');
+                                input.classList.remove('is-valid');
+                            } else {
+                                input.classList.add('is-valid');
+                                input.classList.remove('is-invalid');
+                            }
+                        }
+                    });
+                }, 0);
+            });
+        });
+    </script>
+}

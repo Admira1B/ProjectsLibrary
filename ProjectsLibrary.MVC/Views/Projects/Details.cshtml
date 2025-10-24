@@ -1,0 +1,203 @@
+﻿@model ProjectsLibrary.MVC.Models.Project.DetailsProjectViewModel;
+@{
+    ViewData["Title"] = "Project details";
+}
+
+<div class="container col-12 py-1">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 header-container rounded-3">
+        <div class="row">
+            <span class="text-lg-start page-header"><strong>Details</strong></span>
+            <span class="text-muted"><strong>Here you can update information about the project</strong></span>
+        </div>
+        <h6 class="text-center mb-0" style="white-space: nowrap;">
+            ProjectsLibrary &gt; Projects &gt; <span class="text-clr-info">@Model.Project.Name</span>
+        </h6>
+    </div>
+
+    <div class="body-container rounded-3">
+        <form asp-action="Update" asp-controller="Projects" method="post" asp-route-id="@Model.Id"
+              class="w-100 bg-white p-4 shadow-sm rounded-top needs-validation" novalidate>
+            <h2 class="mb-3"><strong>Project information</strong></h2>
+
+            <div class="mb-3">
+                <label asp-for="Project.Name" class="form-label form-title">Name</label>
+                <input asp-for="Project.Name" class="form-control" placeholder="Enter project name..." value="@Model.Project.Name" />
+                <span asp-validation-for="Project.Name" class="invalid-feedback d-block"></span>
+            </div>
+
+            <div class="d-flex justify-content-between gap-3">
+                <div style="width: 30%;">
+                    <label asp-for="Project.Priority" class="form-label form-title"></label>
+                    <select asp-for="Project.Priority" class="form-select">
+                        <option value="" disabled selected>Please select...</option>
+                        @for (int num = 1; num <= 5; num++)
+                        {
+                            if (num == Model.Project.Priority)
+                            {
+                                <option value="@num" selected>@num</option>
+                                continue;
+                            }
+                            <option value="@num">@num</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Project.Priority" class="invalid-feedback d-block"></span>
+                </div>
+
+                <div class="mb-3" style="width: 30%;">
+                    <label asp-for="Project.StartDate" class="form-label form-title">Start date</label>
+                    <input asp-for="Project.StartDate" class="form-control" type="date" value="@Model.Project.StartDate.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="Project.StartDate" class="invalid-feedback d-block"></span>
+                </div>
+
+                <div class="mb-3" style="width: 30%;">
+                    <label asp-for="Project.EndDate" class="form-label form-title">End date</label>
+                    <input asp-for="Project.EndDate" class="form-control" type="date" value="@Model.Project.EndDate.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="Project.EndDate" data-val="true" data-val-notearlierdate data-val-msg="End date cannot be earlier than start dat." class="invalid-feedback d-block enddate-error"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Project.CompanyId" class="form-label form-title">Company</label>
+                <select asp-for="Project.CompanyId" class="form-select">
+                    <option value="" disabled selected>Please select...</option>
+                    @foreach (var company in Model.Companies)
+                    {
+                        if (company.Id == Model.Project.CompanyId)
+                        {
+                            <option value="@company.Id" selected>@company.Name</option>
+                            continue;
+                        }
+                        <option value="@company.Id">@company.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="Project.CompanyId" class="invalid-feedback d-block"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Project.ProjectManagerId" class="form-label form-title">Project manager</label>
+                <select asp-for="Project.ProjectManagerId" class="form-select">
+                    <option value="" disabled selected>Please select...</option>
+                    @foreach (var employee in Model.Employees)
+                    {
+                        if (employee.Id == Model.Project.ProjectManagerId)
+                        {
+                            <option value="@employee.Id" selected>@($"{employee.FirstName} {employee.LastName}")</option>
+                            continue;
+
+                        }
+                        <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
+                    }
+                </select>
+                <span asp-validation-for="Project.ProjectManagerId" class="invalid-feedback d-block"></span>
+            </div>
+
+            <div class="d-flex justify-content-end mt-3">
+                <button type="reset" class="btn btn-danger mx-2">Reset</button>
+                <button type="submit" class="btn btn-primary dt-btn-edit">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('form');
+            if (!form) return;
+
+            const inputs = form.querySelectorAll('input, select, textarea');
+
+            const startDateInput = document.querySelector('input[name="Project.StartDate"]');
+            const endDateInput = document.querySelector('input[name="Project.EndDate"]');
+
+            const endDateErrorSpan = endDateInput.closest('div').querySelector('.enddate-error');
+
+            function validateDates() {
+                const startVal = startDateInput.value;
+                const endVal = endDateInput.value;
+                let isValid = true;
+
+                if (endDateErrorSpan) {
+                    endDateErrorSpan.style.display = 'none';
+                }
+
+                if (!endVal) {
+                    if (endDateErrorSpan) {
+                        endDateErrorSpan.textContent = "End date cannot be empty.";
+                        endDateErrorSpan.style.display = 'block';
+                    }
+                    endDateInput.classList.remove('is-valid');
+                    endDateInput.classList.add('is-invalid');
+                    return false;
+                }
+
+                const startDate = new Date(startVal);
+                const endDate = new Date(endVal);
+
+                if (startDate > endDate) {
+                    if (endDateErrorSpan) {
+                        endDateErrorSpan.textContent = "End date cannot be earlier than start date.";
+                        endDateErrorSpan.style.display = 'block';
+                    }
+                    endDateInput.classList.add('is-invalid');
+                    endDateInput.classList.remove('is-valid');
+                    return false;
+                } else {
+                    if (endDateErrorSpan && endDateErrorSpan.style.display === 'block') {
+                    } else {
+                      if (endDateErrorSpan) {
+                        endDateErrorSpan.style.display = 'none';
+                      }
+                    }
+                    endDateInput.classList.remove('is-invalid');
+                    if (endDateInput.value) {
+                        endDateInput.classList.add('is-valid');
+                    }
+                    return true;
+                }
+            }
+
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    input.classList.remove('is-valid', 'is-invalid');
+                    if (input === startDateInput || input === endDateInput) {
+                        validateDates();
+                    }
+                });
+                input.addEventListener('change', () => {
+                    input.classList.remove('is-valid', 'is-invalid');
+                    if (input === startDateInput || input === endDateInput) {
+                        validateDates();
+                    }
+                });
+            });
+
+            form.addEventListener('submit', e => {
+                const datesAreValid = validateDates();
+
+                inputs.forEach(input => {
+                    const errorSpan = input.closest('div').querySelector('.invalid-feedback');
+                    if (errorSpan) {
+                        const hasError = errorSpan.textContent.trim().length > 0;
+                        if (hasError) {
+                            input.classList.add('is-invalid');
+                            input.classList.remove('is-valid');
+                        } else {
+                            input.classList.remove('is-invalid');
+                            if (input.value) {
+                                input.classList.add('is-valid');
+                            } else {
+                                input.classList.remove('is-valid');
+                            }
+                        }
+                    }
+                });
+
+                if (!datesAreValid) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}

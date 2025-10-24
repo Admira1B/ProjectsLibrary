@@ -1,0 +1,547 @@
+﻿@model ProjectsLibrary.MVC.Models.Project.IndexProjectViewModel;
+@{
+    ViewData["Title"] = "Projects";
+}
+
+<div class="container col-12 py-1">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+        @if (Model.UserRole >= EmployeeRole.Manager)
+        {
+            <a class="btn btn-outline-secondary btn-dark text-clr-sec d-flex align-items-center gap-2" asp-controller="Projects" asp-action="Add">
+                <img src="/icons/plus.svg" alt="add">
+                <span>Add project</span>
+            </a>
+        }
+        else
+        {
+            <span></span>   
+        }
+
+        <h6 class="text-center mb-0">
+            ProjectsLibrary &gt; <span class="text-clr-info">Projects</span>
+        </h6>
+    </div>
+
+    <div class="mb-4">
+        <input type="search"
+               id="searchInput"
+               class="form-control form-control-lg"
+               placeholder="Search projects..."
+               aria-label="Search projects"
+               style="width: 100%;">
+    </div>
+
+    <div class="table-container">
+        <table id="projects-table" class="table table-bordered table-hover table-striped mb-0">
+            <thead class="table-dark">
+                <tr class="text-center">
+                    <th>ID</th>
+                    <th>Project</th>
+                    <th>Priority</th>
+                    <th>Start</th>
+                    <th>End date</th>
+                    <th>Customer</th>
+                    <th>Manager</th>
+                    <th class="text-center">Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Server-side DataTable loading -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="projectDeleteModal" tabindex="-1" aria-labelledby="projectDeleteLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="width: 33rem;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="projectDeleteModalLabel" class="modal-title">Warning about deleting data about the project</h5>
+                    <img src="icons/warning_black.svg" alt="" style="height: 35px;" />
+                </div>
+                <div class="modal-body">
+                    <div class="pb-1">
+                        <p class="text-center modal-text"></p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button id="cancelBtn" type="button" class="btn btn-danger">Cancel</button>
+                        <button id="confirmBtn" type="button" class="btn btn-primary dt-btn-edit">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="projectsTasksModal" class="modal fade" tabindex="-1" aria-labelledby="projectsTasksModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="projectsTasksModalTitle" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-0 mb-2 pb-1">
+                        <h6 class="mt-0 mb-2">Tasks list</h6>
+                        <ul id="tasksList" class="list-group mx-4 mb-2 scrolling-list">
+                        </ul>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <a id="addTaskBtn" class="btn btn-primary dt-btn-edit d-flex align-items-center gap-2" style="width: 20%" 
+                        asp-controller="Tasks" asp-action="Add" asp-route-id="">
+                            <img src="/icons/plus.svg" alt="add">
+                            <span>Add task</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="projectsEmployeesModal" class="modal fade" tabindex="-1" aria-labelledby="projectsEmployeesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="projectsEmployeesModalTitle" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-0 mb-2">
+                        <h6 class="mt-0 mb-2">Emloyees list</h6>
+                        <ul id="employeesList" class="list-group mx-4 mb-2 scrolling-list">
+                        </ul>
+                        <h6 id="projectManagerTitle"></h6>
+                        <ul class="list-group mx-4 mb-2">
+                            <li id="projectManagerItem"></li>
+                        </ul>
+                    </div>
+                    <div id="addingEmployeeForm" class="input-group mb-3">
+                        <span id="addEmployeeToProjLabel" class="input-group-text" style="width: 30%">Adding an employee</span>
+                        <select id="addEmployeeToProjInput" class="form-select">
+                        </select>
+                        <button id="addEmployeeToProjBtn" type="button" class="btn btn-primary dt-btn-edit" style="width: 10rem;">Add employee</button>
+                    </div>
+                    <div id="removingEmployeeForm" class="input-group mb-3">
+                        <span id="removeEmployeeFromProjLabel" class="input-group-text" style="width: 30%">Removing an employee</span>
+                        <select id="removeEmployeeFromProjInput" class="form-select">
+                        </select>
+                        <button id="removeEmployeeFromProjBtn" type="button" class="btn btn-danger" style="width: 10rem;">Remove employee</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script type="text/javascript">
+        let table;
+        let searchTimeout;
+        let userRole = @((int)Model.UserRole);
+        let managerRole = @((int)EmployeeRole.Manager);
+
+        $(document).ready(function () {
+            table = $('#projects-table').DataTable({
+                dom: `t<'row'<'col-6'i><'col-6'p>>`,
+                processing: true,
+                serverSide: true,
+                orderFixed: false,
+                orderReset: false,
+                orderMulti: false,
+                order: [[0, 'asc']],
+                orderSequence: ['asc', 'desc'],
+                pageLength: 10,
+                pagingType: 'simple_numbers',
+                ajax: {
+                  url: 'Projects/Get',
+                  type: 'POST',
+                  dataType: 'json',
+                  data: function (d) {
+                    var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
+                    d.sortColumn = d.columns[order.column].name;
+                    d.sortDirection = order.dir;
+                    d.searchingValue = d.search.value;
+                    d.searchableFieldsNames = ['name'];
+                  }
+                },
+                columns: [
+                    {
+                        'data': null,
+                        'name': 'Id',
+                        'render': function (data, type, row) {
+                            return renderIdColumn(row.id);
+                        }
+                    },
+                    {
+                        'data': null,
+                        'name': 'Name',
+                        'render': function (data, type, row) {
+                            return renderNameColumn(row.id, row.name)
+                        }
+                    },
+                    {
+                        'data': null,
+                        'name': 'Priority',
+                        'render': function (data, type, row) {
+                            return renderPriorityColumn(row.priority)
+                        }
+                    },
+                    {
+                        'data': null,
+                        'name': 'StartDate',
+                        'render': function (data, type, row) {
+                            return renderDateColumn(row.startDate)
+                        }
+                    },
+                    {
+                        'data': null,
+                        'name': 'EndDate',
+                        'render': function (data, type, row) {
+                            return renderDateColumn(row.endDate)
+                        }
+                    },
+                    {
+                        'data': null,
+                        'name': 'Customer',
+                        'render': function (data, type, row) {
+                            return renderCustomerColumn(row.company.name)
+                        }
+                    },
+                    {
+                        'data': null,
+                        'name': 'Manager',
+                        'render': function (data, type, row) {
+                            return renderManagerColumn(row.projectManager.firstName, row.projectManager.lastName)
+                        }
+                    },
+                    {
+                        'data': null,
+                        'render': function (data, type, row) {
+                            return renderOptionsButtons(row, userRole, managerRole)
+                        }
+                    }
+                ],
+                columnDefs: [
+                    { visible: false, targets: 0 },
+                    { width: '23%', targets: 1 },
+                    {
+                        orderable: false,
+                        targets: [ 5, 6, 7 ]
+                    },
+                ],
+            });
+        });
+
+        function renderIdColumn(id) {
+            return `<a href='/Projects/Details/${id}' class='dt-a-link'>${id}</a>`;
+        };
+
+        function renderNameColumn(id, name) {
+            return `<a href='/Projects/Details/${id}' class='dt-a-link'>${name ?? ''}</a>`;
+        };
+
+        function renderDateColumn(date) {
+            return `<span class="text-muted"><strong>${ formatDate(date) ?? ''}</strong></span>`;
+        };
+
+        function renderPriorityColumn(priority) {
+            return `<span><strong>${priority}</strong></span>`;
+        };
+
+        function renderCustomerColumn(name) {
+            return `<span>${name}</span>`;
+        };
+
+        function renderManagerColumn(firstname, lastname) {
+            return `<span>${firstname + ' ' + lastname}</span>`;
+        };
+
+        function formatDate(dateString, format) {
+            const parsedDate = new Date(dateString);
+
+            const day = ('0' + parsedDate.getDate()).slice(-2);
+            const month = ('0' + (parsedDate.getMonth() + 1)).slice(-2);
+            const year = parsedDate.getFullYear();
+
+            if (format === 'dd.MM.yyyy') {
+                return `${day}.${month}.${year}`;
+            }
+            if (format === 'dd/MM/yyyy') {
+                return `${day}/${month}/${year}`;
+            }
+
+            return `${day}-${month}-${year}`;
+        }
+
+        function renderOptionsButtons(project, userRole, managerRole) {
+            return `
+                    <div class='d-flex justify-content-center align-items-center gap-3'>
+                        ${userRole >= managerRole ? 
+                        `<a class='btn btn-sm dt-btn-edit' href='/Projects/Details/${project.id}' data-bs-toggle='tooltip' title='Edit project'>
+                                    <img src="icons/edit.svg" alt="edit" />
+                        </a>` : ``}
+                        <a id="projectTasksBtn" class='btn btn-sm btn-info' href='#' 
+                        data-id='${project.id}'
+                        data-name='${project.name}'
+                        data-tasks='${encodeURIComponent(JSON.stringify(project.tasks))}'
+                        data-bs-toggle='tooltip' title='View project tasks'>
+                            <img src="icons/project_tasks.svg" alt="tasks" />
+                        </a>
+                        <a id="projectEmployeesBtn" class='btn btn-sm btn-info' href='#' 
+                        data-id='${project.id}'
+                        data-name='${project.name}'
+                        data-project-manager='${encodeURIComponent(JSON.stringify(project.projectManager))}'
+                        data-employees='${encodeURIComponent(JSON.stringify(project.employees))}'
+                        data data-bs-toggle='tooltip' title='View project employees'>
+                            <img src="icons/project_employees.svg" alt="projects" />
+                        </a>
+                        ${userRole >= managerRole ? 
+                        `<a id="deleteProjectBtn" class='btn btn-sm btn-danger' href='#' data-id='${project.id}' data-name='${project.name}' data-bs-toggle='tooltip' title='Delete project'>
+                            <img src="icons/delete.svg" alt="delete" />
+                        </a>` : ``}
+
+                    </div>`;
+        };
+
+        $("#searchInput").on("keyup", function (event) {
+            const val = $(this).val();
+
+            if (event.key === "Enter" || event.keyCode === 13) {
+                clearTimeout(searchTimeout);
+
+                table.search(val).draw();
+                return;
+            }
+
+            clearTimeout(searchTimeout);
+
+            searchTimeout = setTimeout(function () {
+                table.search(val).draw();
+            }, 1500);
+        });
+
+        // Project tasks modal window events
+        $(document).on('click', '#projectTasksBtn', function(e) {
+            e.preventDefault();
+
+            const id = $(this).data('id');
+
+            initializeProjectTasksModal(id);
+        })
+
+        async function initializeProjectTasksModal(projectId, tasks) {
+            const modal = new bootstrap.Modal(document.getElementById('projectsTasksModal'));
+            const modalTitle = $('#projectsTasksModalTitle');
+            const list = $('#tasksList').empty();
+
+            $('#projectsTasksModal').data('projectId', projectId);
+
+            modalTitle.text(`Project's tasks info`);
+
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            
+            if (addTaskBtn) {
+                const url = new URL(addTaskBtn.href, window.location.origin);
+                url.searchParams.set('id', projectId);
+                addTaskBtn.href = url.toString();
+            }
+
+            const project = await $.ajax({
+                url: `/Projects/GetProjectWithTasks/${projectId}`,
+                method: 'GET',
+                dataType: 'json'
+            });
+
+            if(project.tasks.length === 0) {
+                 list.append('<li>No tasks on this project yet</li>');
+            } else {
+                let counter = 0;
+                project.tasks.forEach(task => {
+                    switch (task.status) {
+                        case 0:
+                            list.append(
+                                `<li>
+                                ${++counter}: <strong>${task.executor.firstName} ${task.executor.lastName}</strong>
+                                will do <strong>${task.name}</strong> task
+                                </li>`);
+                            break;
+                        case 1:
+                            list.append(
+                                `<li>
+                                ${++counter}: <strong>${task.executor.firstName} ${task.executor.lastName}</strong>
+                                working on <strong>${task.name}</strong> task
+                                </li>`);
+                            break;
+                        case 2:
+                            list.append(
+                                `<li>
+                                ${++counter}: <strong>${task.executor.firstName} ${task.executor.lastName}</strong>
+                                done <strong>${task.name}</strong> task
+                                </li>`);
+                            break;
+                        default:
+                            list.append(
+                             `<li>
+                                ${++counter}: <strong>${task.executor.firstName} ${task.executor.lastName}</strong>:
+                                <strong>${task.name}</strong> task
+                                </li>`);
+                            break;
+                    }
+                });
+            }
+
+            modal.show();
+        }
+
+        // Project employyes modal window events
+        $(document).on('click', '#projectEmployeesBtn', function(e) {
+            e.preventDefault();
+
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+            const dataProjectManager = decodeURIComponent($(this).attr('data-project-manager'));
+            const projectManager = JSON.parse(dataProjectManager);
+
+            initializeProjectEmployeesModal(id, projectManager);
+        });
+
+        async function initializeProjectEmployeesModal(projectId, projectManager) {
+            const modal = new bootstrap.Modal(document.getElementById('projectsEmployeesModal'));
+            const modalTitle = $('#projectsEmployeesModalTitle');
+            const projectManagerTitle = $('#projectManagerTitle');
+            const projectManagerItem = $('#projectManagerItem');
+
+            $('#projectsEmployeesModal').data('projectId', projectId);
+
+            modalTitle.text(`Project's employees info`);
+            projectManagerTitle.text('Project manager');
+            projectManagerItem.text(`${projectManager.firstName} ${projectManager.lastName}`);
+
+            $('#addingEmployeeForm').show();
+            $('#removingEmployeeForm').show();
+
+            await refreshModalProjectEmployees(projectId);
+
+            modal.show();
+        }
+
+        async function refreshModalProjectEmployees(projectId) {
+            const currentProject = await $.ajax({
+                url: `/Projects/GetById/${projectId}`,
+                method: 'GET',
+                dataType: 'json'
+            });
+
+            const currentEmployees = currentProject.employees;
+
+            const availableEmployees = await $.ajax({
+                url: `/Employees/GetDataOnlyWithoutWorking/${projectId}`,
+                method: 'GET',
+                dataType: 'json'
+            });
+
+            renderCurrentEmployees(currentEmployees);
+
+            renderAvailableEmployees(availableEmployees);
+        }
+
+        function renderCurrentEmployees(employees) {
+            const list = $('#employeesList').empty();
+            const removeSelect = $('#removeEmployeeFromProjInput').empty()
+                .append(`<option value="" disabled selected>Please select...</option>`);
+
+            if (employees.length === 0) {
+                list.append('<li>No employees on this project yet</li>');
+                $('#removingEmployeeForm').hide();
+            } else {
+                $('#removingEmployeeForm').show();
+                employees.forEach(emp => {
+                    list.append(`<li>${emp.firstName} ${emp.lastName}</li>`);
+                    removeSelect.append(`<option value="${emp.id}">${emp.firstName} ${emp.lastName}</option>`);
+                });
+            }
+        }
+
+        function renderAvailableEmployees(employees) {
+            const addSelect = $('#addEmployeeToProjInput').empty()
+                .append(`<option value="" disabled selected>Please select...</option>`);
+            if (employees.length === 0) {
+                $('#addingEmployeeForm').hide();
+            } else {
+                $('#addingEmployeeForm').show();
+                employees.forEach(emp => {
+                    addSelect.append(`<option value="${emp.id}">${emp.firstName} ${emp.lastName}</option>`);
+                });
+            }
+        }
+
+        $('#addEmployeeToProjBtn').on('click', async function() {
+            const projectId = $('#projectsEmployeesModal').data('projectId');
+            const employeeId = $('#addEmployeeToProjInput').val();
+
+            if (!employeeId) {
+                alert('Employee is not selected');
+                return;
+            }
+
+            await $.ajax({
+                url: `/Projects/${projectId}/add/${employeeId}`,
+                type: 'PATCH'
+            });
+            await refreshModalProjectEmployees(projectId);
+        });
+
+        $('#removeEmployeeFromProjBtn').on('click', async function() {
+            const projectId = $('#projectsEmployeesModal').data('projectId');
+            const employeeId = $('#removeEmployeeFromProjInput').val();
+
+            if (!employeeId) {
+                alert('Employee is not selected');
+                return;
+            }
+
+            await $.ajax({
+                url: `/Projects/${projectId}/remove/${employeeId}`,
+                type: 'PATCH'
+            });
+            await refreshModalProjectEmployees(projectId);
+        });
+
+        // Delete modal window events
+        $(document).on('click', '#deleteProjectBtn', function(e) {
+            e.preventDefault();
+
+            const id = $(this).data('id');
+            const name = $(this).data('name');
+
+            $('#projectDeleteModal').data('projectId', id);
+            $('#projectDeleteModal').data('projectName', name);
+
+            $('#projectDeleteModal .modal-body p').text(`Are you sure you want to delete the ${name} project?`);
+
+            var modal = new bootstrap.Modal(document.getElementById('projectDeleteModal'));
+            modal.show();
+        });
+
+        $('#confirmBtn').on('click', function() {
+            const id = $('#projectDeleteModal').data('projectId');
+
+            $.ajax({
+                url: `Projects/Delete/${id}`,
+                type: 'DELETE',
+                dataType: 'json',
+                success: function (response) {
+                    table.draw();
+                },
+            });
+
+            var modal = bootstrap.Modal.getInstance(document.getElementById('projectDeleteModal'));
+            modal.hide();
+        });
+
+        $('#cancelBtn').on('click', function() {
+            var modal = bootstrap.Modal.getInstance(document.getElementById('projectDeleteModal'));
+            modal.hide();
+        });
+    </script>
+}

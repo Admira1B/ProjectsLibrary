@@ -1,0 +1,156 @@
+﻿@model ProjectsLibrary.MVC.Models.Task.DetailsTaskViewModel
+
+@{
+    ViewData["Title"] = "Task details";
+}
+
+<div class="container col-12 py-1">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 header-container rounded-3">
+        <div class="row">
+            <span class="text-lg-start page-header"><strong>Details</strong></span>
+            <span class="text-muted"><strong>Here you can update information about the project</strong></span>
+        </div>
+        <h6 class="text-center mb-0" style="white-space: nowrap;">
+            ProjectsLibrary &gt; Tasks &gt; <span class="text-clr-info">@Model.Task.Name</span>
+        </h6>
+    </div>
+
+    <div class="body-container rounded-3">
+        <form asp-action="Update" asp-controller="Tasks" method="post" asp-route-id="@Model.Id"
+              class="w-100 bg-white p-4 shadow-sm rounded-top needs-validation" novalidate>
+            <h2 class="mb-3"><strong>Task information</strong></h2>
+
+            <div class="mb-3">
+                <label asp-for="Task.Name" class="form-label form-title">Task</label>
+                <input asp-for="Task.Name" class="form-control" placeholder="Enter the task..." />
+                <span asp-validation-for="Task.Name" class="invalid-feedback d-block"></span>
+            </div>
+
+            <div class="d-flex justify-content-between gap-3 mb-3">
+                <div style="width: 45%">
+                    <label asp-for="Task.ProjectId" class="form-label form-title">Project</label>
+                    <select asp-for="Task.ProjectId" class="form-select">
+                        <option value="" disabled selected>Please select...</option>
+                        @foreach (var project in Model.Projects)
+                        {
+                            if (project.Id == Model.Task.ProjectId)
+                            {
+                                <option value="@project.Id" selected>@project.Name</option>
+                                continue;
+                            }
+                            <option value="@project.Id">@project.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Task.ProjectId" class="invalid-feedback d-block"></span>
+                </div>
+
+                <div style="width: 45%">
+                    <label asp-for="Task.Status" class="form-label form-title">Status</label>
+                    <select asp-for="Task.Status" class="form-select">
+                        <option value="" disabled>Please select...</option>
+                        @for (int num = 0; num < 3; num++)
+                        {
+                            var status = (TaskPLStatus)num;
+
+                            if (num == (int)Model.Task.Status)
+                            {
+                                <option value="num" selected>@status.StatusToString()</option>
+                                continue;
+                            }
+                            <option value="num">@status.StatusToString()</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Task.Status" class="invalid-feedback d-block"></span>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between gap-3 mb-3">
+                <div style="width: 45%">
+                    <label asp-for="Task.CreatorId" class="form-label form-title">Creator</label>
+                    <select asp-for="Task.CreatorId" class="form-select">
+                        <option value="" disabled selected>Please select...</option>
+                        @foreach (var employee in Model.Employees)
+                        {
+                            if (employee.Id == Model.Task.CreatorId)
+                            {
+                                <option value="@employee.Id" selected>@($"{employee.FirstName} {employee.LastName}")</option>
+                                continue;
+                            }
+                            <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Task.CreatorId" class="invalid-feedback d-block"></span>
+                </div>
+
+                <div style="width: 45%">
+                    <label asp-for="Task.ExecutorId" class="form-label form-title">Executor</label>
+                    <select asp-for="Task.ExecutorId" class="form-select">
+                        <option value="" disabled selected>Please select...</option>
+                        @foreach (var employee in Model.Employees)
+                        {
+                            if (employee.Id == Model.Task.ExecutorId)
+                            {
+                                <option value="@employee.Id" selected>@($"{employee.FirstName} {employee.LastName}")</option>
+                                continue;
+                            }
+                            <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Task.ExecutorId" class="invalid-feedback d-block"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Task.Comment" class="form-label form-title">Comment</label>
+                <textarea asp-for="Task.Comment" class="form-control" placeholder="Enter comment here..." style="height: 10rem;"></textarea>
+                <span asp-validation-for="Task.Comment" class="invalid-feedback d-block"></span>
+            </div>
+
+            <div class="d-flex justify-content-end mt-3">
+                <button type="reset" class="btn btn-danger mx-2">Reset</button>
+                <button type="submit" class="btn btn-primary dt-btn-edit">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('form');
+            if (!form) return;
+
+            const inputs = form.querySelectorAll('input, select, textarea');
+
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    input.classList.remove('is-valid', 'is-invalid');
+                });
+                input.addEventListener('change', () => {
+                    input.classList.remove('is-valid', 'is-invalid');
+                });
+            });
+
+            form.addEventListener('submit', e => {
+                setTimeout(() => {
+                    inputs.forEach(input => {
+                        const errorSpan = input.closest('div').querySelector('.invalid-feedback');
+
+                        if (errorSpan) {
+                            const hasError = errorSpan.textContent.trim().length > 0;
+
+                            if (hasError) {
+                                input.classList.add('is-invalid');
+                                input.classList.remove('is-valid');
+                            } else {
+                                input.classList.add('is-valid');
+                                input.classList.remove('is-invalid');
+                            }
+                        }
+                    });
+                }, 0);
+            });
+        });
+    </script>
+}
