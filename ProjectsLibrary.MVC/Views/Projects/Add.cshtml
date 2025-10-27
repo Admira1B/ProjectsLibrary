@@ -42,7 +42,7 @@
                 <div class="mb-3" style="width: 45%;">
                     <label asp-for="Project.EndDate" class="form-label form-title">End date</label>
                     <input asp-for="Project.EndDate" class="form-control" type="date" />
-                    <span asp-validation-for="Project.EndDate"  class="invalid-feedback d-block"></span>
+                    <span asp-validation-for="Project.EndDate" class="invalid-feedback d-block"></span>
                 </div>
             </div>
 
@@ -58,17 +58,38 @@
                 <span asp-validation-for="Project.CompanyId" class="invalid-feedback d-block"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Project.ProjectManagerId" class="form-label form-title">Project manager</label>
-                <select asp-for="Project.ProjectManagerId" class="form-select">
-                    <option value="" disabled selected>Please select...</option>
-                    @foreach (var employee in Model.Employees)
-                    {
-                        <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
-                    }
-                </select>
-                <span asp-validation-for="Project.ProjectManagerId" class="invalid-feedback d-block"></span>
-            </div>
+            @if (User?.Identity?.IsAuthenticated == true)
+            {
+                var id = User.FindFirst("employeeId")?.Value ?? "id";
+                var name = User.FindFirst("employeeName")?.Value ?? "name";
+                var roleString = User.FindFirst("employeeRole")?.Value ?? "role";
+                var role = EmployeeRoleExtension.StringToRole(roleString);
+
+                @if (role >= EmployeeRole.Supervisor)
+                {
+                    <div class="mb-3">
+                        <label asp-for="Project.ProjectManagerId" class="form-label form-title">Project manager</label>
+                        <select asp-for="Project.ProjectManagerId" class="form-select">
+                            <option value="" disabled selected>Please select...</option>
+                            @foreach (var employee in Model.Employees)
+                            {
+                                <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Project.ProjectManagerId" class="invalid-feedback d-block"></span>
+                    </div>
+                }
+                else
+                {
+                    <div class="mb-3">
+                        <label asp-for="Project.ProjectManagerId" class="form-label form-title">Project manager</label>
+                        <select asp-for="Project.ProjectManagerId" class="form-select">
+                            <option value=@(Convert.ToInt32(id)) selected>@name</option>
+                        </select>
+                        <span asp-validation-for="Project.ProjectManagerId" class="invalid-feedback d-block"></span>
+                    </div>
+                }
+            }
 
             <div class="d-flex justify-content-end mt-3">
                 <button type="reset" class="btn btn-danger mx-2">Reset</button>
@@ -80,41 +101,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.querySelector('form');
-            if (!form) return;
-
-            const inputs = form.querySelectorAll('input, select, textarea');
-
-            inputs.forEach(input => {
-                input.addEventListener('input', () => {
-                    input.classList.remove('is-valid', 'is-invalid');
-                });
-                input.addEventListener('change', () => {
-                    input.classList.remove('is-valid', 'is-invalid');
-                });
-            });
-
-            form.addEventListener('submit', e => {
-                setTimeout(() => {
-                    inputs.forEach(input => {
-                        const errorSpan = input.closest('div').querySelector('.invalid-feedback');
-
-                        if (errorSpan) {
-                            const hasError = errorSpan.textContent.trim().length > 0;
-
-                            if (hasError) {
-                                input.classList.add('is-invalid');
-                                input.classList.remove('is-valid');
-                            } else {
-                                input.classList.add('is-valid');
-                                input.classList.remove('is-invalid');
-                            }
-                        }
-                    });
-                }, 0);
-            });
-        });
-    </script>
+    <partial name="_ValidStylesCommon" />
 }

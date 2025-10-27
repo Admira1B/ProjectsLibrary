@@ -13,6 +13,7 @@ namespace ProjectsLibrary.Domain.Contracts.Services
         Task<Employee> GetByIdNoTrackingAsync(int id);
         Task<Employee> GetEmployeeWithTasksNoTrackingAsync(int id);
         Task<Employee> GetEmployeeWithProjectsNoTrackingAsync(int id);
+        Task<List<Project>> GetEmployeeAllProjectsByIdNoTrackingAsync(int id);
         Task RegisterAsync(Employee employee, string password);
         Task<string> LoginAsync(string email, string password);
         Task AddAsync(Employee employee);

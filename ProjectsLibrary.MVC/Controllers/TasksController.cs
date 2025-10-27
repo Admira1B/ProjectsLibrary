@@ -5,6 +5,7 @@ using ProjectsLibrary.API.Extencions;
 using ProjectsLibrary.CompositionRoot.Autorization;
 using ProjectsLibrary.Domain.Contracts.Services;
 using ProjectsLibrary.Domain.Models.Entities;
+using ProjectsLibrary.Domain.Models.Enums;
 using ProjectsLibrary.Domain.Models.RequestModels;
 using ProjectsLibrary.Domain.Models.Results;
 using ProjectsLibrary.DTOs.Employee;
@@ -35,7 +36,20 @@ namespace ProjectsLibrary.MVC.Controllers
         [Authorize(Policy = PolicyLevelName.BaseLevel)]
         public async Task<IActionResult> Add(int? id = null)
         {
-            var projects = await _projectService.GetDataOnlyAsync();
+            List<Project> projects;
+            int userId;
+            var userRole = ControllersExtencions.GetUserRole(User);
+
+            if (userRole <= EmployeeRole.Manager)
+            {
+                userId = ControllersExtencions.GetUserId(User);
+                projects = await _employeeService.GetEmployeeAllProjectsByIdNoTrackingAsync(userId);
+            }
+            else
+            {
+                projects = await _projectService.GetDataOnlyAsync();
+            }
+
             var employees = await _employeeService.GetDataOnlyAsync();
             
             var projectsDtos = _mapper.Map<List<ProjectReadDto>>(projects);
@@ -62,8 +76,21 @@ namespace ProjectsLibrary.MVC.Controllers
 
             var taskUpdateDto = _mapper.Map<TaskUpdateDto>(taskReadDto);
 
+            List<Project> projects;
+            int userId;
+            var userRole = ControllersExtencions.GetUserRole(User);
+
+            if (userRole <= EmployeeRole.Manager)
+            {
+                userId = ControllersExtencions.GetUserId(User);
+                projects = await _employeeService.GetEmployeeAllProjectsByIdNoTrackingAsync(userId);
+            }
+            else
+            {
+                projects = await _projectService.GetDataOnlyAsync();
+            }
+
             var employees = await _employeeService.GetDataOnlyAsync();
-            var projects = await _projectService.GetDataOnlyAsync();
 
             var projectsDtos = _mapper.Map<List<ProjectReadDto>>(projects);
             var employeesDtos = _mapper.Map<List<EmployeeReadDto>>(employees);
@@ -85,10 +112,19 @@ namespace ProjectsLibrary.MVC.Controllers
         {
             var builtParams = ControllersExtencions.BuildGetMethodModelParams(model);
 
+            int? userId = null;
+            var userRole = ControllersExtencions.GetUserRole(User);
+
+            if (userRole <= EmployeeRole.Manager)
+            {
+                userId = ControllersExtencions.GetUserId(User);
+            }
+
             var tasksPaged = await _service.GetPaginatedAsync(
                 filterParams: builtParams.filterParams,
                 sortParams: builtParams.sortParams,
-                pageParams: builtParams.pageParams);
+                pageParams: builtParams.pageParams,
+                employeeId: userId);
 
             var tasksDtos = _mapper.Map<List<TaskReadDto>>(tasksPaged.Datas);
 

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Adding task";
+
 }
 
 <div class="container col-12 py-1">
@@ -64,31 +65,77 @@
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between gap-3 mb-3">
-                <div style="width: 45%">
-                    <label asp-for="Task.CreatorId" class="form-label form-title">Creator</label>
-                    <select asp-for="Task.CreatorId" class="form-select">
-                        <option value="" disabled selected>Please select...</option>
-                        @foreach (var employee in Model.Employees)
-                        {
-                            <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
-                        }
-                    </select>
-                    <span asp-validation-for="Task.CreatorId" class="invalid-feedback d-block"></span>
-                </div>
+            @if (User?.Identity?.IsAuthenticated == true)
+            {
+                var id = User.FindFirst("employeeId")?.Value ?? "id";
+                var name = User.FindFirst("employeeName")?.Value ?? "name";
+                var roleString = User.FindFirst("employeeRole")?.Value ?? "role";
+                var role = EmployeeRoleExtension.StringToRole(roleString);
 
-                <div style="width: 45%">
-                    <label asp-for="Task.ExecutorId" class="form-label form-title">Executor</label>
-                    <select asp-for="Task.ExecutorId" class="form-select">
-                        <option value="" disabled selected>Please select...</option>
-                        @foreach (var employee in Model.Employees)
+                <div class="d-flex justify-content-between gap-3 mb-3">
+                    @if (role >= EmployeeRole.Supervisor)
+                    {
+                        <div style="width: 45%">
+                            <label asp-for="Task.CreatorId" class="form-label form-title">Creator</label>
+                            <select asp-for="Task.CreatorId" class="form-select">
+                                <option value="" disabled selected>Please select...</option>
+                                @foreach (var employee in Model.Employees)
+                                {
+                                    <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Task.CreatorId" class="invalid-feedback d-block"></span>
+                        </div>
+
+                        <div style="width: 45%">
+                            <label asp-for="Task.ExecutorId" class="form-label form-title">Executor</label>
+                            <select asp-for="Task.ExecutorId" class="form-select">
+                                <option value="" disabled selected>Please select...</option>
+                                @foreach (var employee in Model.Employees)
+                                {
+                                    <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Task.ExecutorId" class="invalid-feedback d-block"></span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="width: 45%">
+                            <label asp-for="Task.CreatorId" class="form-label form-title">Creator</label>
+                            <select asp-for="Task.CreatorId" class="form-select">
+                                <option value=@(Convert.ToInt32(id))>@name</option>
+                            </select>
+                            <span asp-validation-for="Task.CreatorId" class="invalid-feedback d-block"></span>
+                        </div>
+
+                        @if (role > EmployeeRole.Employee)
                         {
-                            <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
+                            <div style="width: 45%">
+                                <label asp-for="Task.ExecutorId" class="form-label form-title">Executor</label>
+                                <select asp-for="Task.ExecutorId" class="form-select">
+                                    <option value="" disabled selected>Please select...</option>
+                                    @foreach (var employee in Model.Employees)
+                                    {
+                                        <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Task.ExecutorId" class="invalid-feedback d-block"></span>
+                            </div>
                         }
-                    </select>
-                    <span asp-validation-for="Task.ExecutorId" class="invalid-feedback d-block"></span>
+                        else
+                        {
+                            <div style="width: 45%">
+                                <label asp-for="Task.ExecutorId" class="form-label form-title">Executor</label>
+                                <select asp-for="Task.ExecutorId" class="form-select">
+                                    <option value=@(Convert.ToInt32(id))>@name</option>
+                                </select>
+                                <span asp-validation-for="Task.ExecutorId" class="invalid-feedback d-block"></span>
+                            </div>
+                        }
+                    }
                 </div>
-            </div>
+            }
 
             <div class="mb-3">
                 <label asp-for="Task.Comment" class="form-label form-title">Comment</label>
@@ -106,41 +153,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.querySelector('form');
-            if (!form) return;
-
-            const inputs = form.querySelectorAll('input, select, textarea');
-
-            inputs.forEach(input => {
-                input.addEventListener('input', () => {
-                    input.classList.remove('is-valid', 'is-invalid');
-                });
-                input.addEventListener('change', () => {
-                    input.classList.remove('is-valid', 'is-invalid');
-                });
-            });
-
-            form.addEventListener('submit', e => {
-                setTimeout(() => {
-                    inputs.forEach(input => {
-                        const errorSpan = input.closest('div').querySelector('.invalid-feedback');
-
-                        if (errorSpan) {
-                            const hasError = errorSpan.textContent.trim().length > 0;
-
-                            if (hasError) {
-                                input.classList.add('is-invalid');
-                                input.classList.remove('is-valid');
-                            } else {
-                                input.classList.add('is-valid');
-                                input.classList.remove('is-invalid');
-                            }
-                        }
-                    });
-                }, 0);
-            });
-        });
-    </script>
+    <partial name="_ValidStylesCommon" />
 }

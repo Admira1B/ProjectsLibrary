@@ -8,7 +8,7 @@ namespace ProjectsLibrary.Domain.Contracts.Services
     {
         Task<List<Project>> GetAsync();
         Task<List<Project>> GetDataOnlyAsync();
-        Task<PagedResult<Project>> GetPaginatedAsync(FilterParams filterParams, SortParams sortParams, PageParams pageParams);
+        Task<PagedResult<Project>> GetPaginatedAsync(FilterParams filterParams, SortParams sortParams, PageParams pageParams, int? employeeId = null);
         Task<Project> GetByIdAsync(int id);
         Task<Project> GetByIdNoTrackingAsync(int id);
         Task<Project> GetProjectWithTasksNoTrackingAsync(int id);

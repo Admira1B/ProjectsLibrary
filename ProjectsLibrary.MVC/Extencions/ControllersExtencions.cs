@@ -42,5 +42,11 @@ namespace ProjectsLibrary.API.Extencions
 
             return (EmployeeRole)role;
         }
+
+        public static int GetUserId(ClaimsPrincipal user) 
+        {
+            var userIdString = user.FindFirstValue("employeeId");
+            return Convert.ToInt32(userIdString);
+        }
     }
 }

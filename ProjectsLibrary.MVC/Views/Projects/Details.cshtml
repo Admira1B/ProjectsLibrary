@@ -73,23 +73,61 @@
                 <span asp-validation-for="Project.CompanyId" class="invalid-feedback d-block"></span>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Project.ProjectManagerId" class="form-label form-title">Project manager</label>
-                <select asp-for="Project.ProjectManagerId" class="form-select">
-                    <option value="" disabled selected>Please select...</option>
-                    @foreach (var employee in Model.Employees)
-                    {
-                        if (employee.Id == Model.Project.ProjectManagerId)
-                        {
-                            <option value="@employee.Id" selected>@($"{employee.FirstName} {employee.LastName}")</option>
-                            continue;
+            @if (User?.Identity?.IsAuthenticated == true)
+            {
+                var id = User.FindFirst("employeeId")?.Value ?? "id";
+                var name = User.FindFirst("employeeName")?.Value ?? "name";
+                var roleString = User.FindFirst("employeeRole")?.Value ?? "role";
+                var role = EmployeeRoleExtension.StringToRole(roleString);
 
+                @if (role >= EmployeeRole.Supervisor)
+                {
+                    <div class="mb-3">
+                        <label asp-for="Project.ProjectManagerId" class="form-label form-title">Project manager</label>
+                        <select asp-for="Project.ProjectManagerId" class="form-select">
+                            <option value="" disabled selected>Please select...</option>
+                            @foreach (var employee in Model.Employees)
+                            {
+                                if (employee.Id == Model.Project.ProjectManagerId)
+                                {
+                                    <option value="@employee.Id" selected>@($"{employee.FirstName} {employee.LastName}")</option>
+                                    continue;
+
+                                }
+                                <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Project.ProjectManagerId" class="invalid-feedback d-block"></span>
+                    </div>
+                }
+                else
+                {
+                    <div class="mb-3">
+                        @if (Convert.ToInt32(id) == Model.Project.ProjectManagerId)
+                        {
+                            <label asp-for="Project.ProjectManagerId" class="form-label form-title">Project manager</label>
+                            <select asp-for="Project.ProjectManagerId" class="form-select">
+                                <option value=@(Convert.ToInt32(id)) selected>@name</option>
+                            </select>
+                            <span asp-validation-for="Project.ProjectManagerId" class="invalid-feedback d-block"></span>
                         }
-                        <option value="@employee.Id">@($"{employee.FirstName} {employee.LastName}")</option>
-                    }
-                </select>
-                <span asp-validation-for="Project.ProjectManagerId" class="invalid-feedback d-block"></span>
-            </div>
+                        else
+                        {
+                            <label asp-for="Project.ProjectManagerId" class="form-label form-title">Project manager</label>
+                            <select asp-for="Project.ProjectManagerId" class="form-select">
+                                @foreach (var employee in Model.Employees)
+                                {
+                                    if (employee.Id == Model.Project.ProjectManagerId)
+                                    {
+                                        <option value="@employee.Id" selected>@($"{employee.FirstName} {employee.LastName}")</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="Project.ProjectManagerId" class="invalid-feedback d-block"></span>
+                        }
+                    </div>
+                }
+            }
 
             <div class="d-flex justify-content-end mt-3">
                 <button type="reset" class="btn btn-danger mx-2">Reset</button>

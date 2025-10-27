@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using ProjectsLibrary.API.Extencions;
 using ProjectsLibrary.CompositionRoot.Autorization;
 using ProjectsLibrary.Domain.Contracts.Services;
 using ProjectsLibrary.Domain.Models.Entities;
+using ProjectsLibrary.Domain.Models.Enums;
 using ProjectsLibrary.Domain.Models.RequestModels;
 using ProjectsLibrary.Domain.Models.Results;
 using ProjectsLibrary.DTOs.Company;
@@ -12,6 +14,7 @@ using ProjectsLibrary.DTOs.Employee;
 using ProjectsLibrary.DTOs.Project;
 using ProjectsLibrary.DTOs.Task;
 using ProjectsLibrary.MVC.Models.Project;
+using System.Security.Claims;
 
 namespace ProjectsLibrary.MVC.Controllers
 {
@@ -80,6 +83,7 @@ namespace ProjectsLibrary.MVC.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = PolicyLevelName.BaseLevel)]
         public async Task<ProjectReadDto> GetById(int id)
         {
             var project = await _service.GetByIdNoTrackingAsync(id);
@@ -104,10 +108,19 @@ namespace ProjectsLibrary.MVC.Controllers
         {
             var builtParams = ControllersExtencions.BuildGetMethodModelParams(model);
 
+            int? userId = null;
+            var userRole = ControllersExtencions.GetUserRole(User);
+
+            if (userRole <= EmployeeRole.Manager)
+            {
+                userId = ControllersExtencions.GetUserId(User);
+            }
+
             var projectsPaged = await _service.GetPaginatedAsync(
                 filterParams: builtParams.filterParams,
                 sortParams: builtParams.sortParams,
-                pageParams: builtParams.pageParams);
+                pageParams: builtParams.pageParams,
+                employeeId: userId);
 
             var projectsDtos = _mapper.Map<List<ProjectReadDto>>(projectsPaged.Datas);
 

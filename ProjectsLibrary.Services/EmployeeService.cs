@@ -133,6 +133,17 @@ namespace ProjectsLibrary.Services
             return await _repository.GetEmployeeWithProjectsNoTracking(id);
         }
 
+        public async Task<List<Project>> GetEmployeeAllProjectsByIdNoTrackingAsync(int id) 
+        {
+            var employee = await GetByIdAsync(id);
+            var managedProjects = employee.ManagedProjects;
+            var workingProjects = employee.WorkingProjects;
+
+            var result = managedProjects.Concat(workingProjects).ToList();
+
+            return result;
+        }
+
         public async Task UpdateAsync(Employee employee)
         {
             await EnsureEmployeeExistsAsync(employee.Id);

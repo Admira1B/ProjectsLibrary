@@ -190,7 +190,7 @@
 						<a class='btn btn-sm dt-btn-edit' href='/Tasks/Details/${id}' data-bs-toggle='tooltip' title='Edit'>
 							<img src="icons/edit.svg" alt="edit" />
 						</a>
-						${(userRole > managerRole) ? `
+						${(userRole >= managerRole) ? `
 							<a class='btn btn-sm btn-danger delete-btn' href='#' data-id='${id}' data-name='${name ?? ''}' data-bs-toggle='tooltip' title='Delete'>
 								<img src="icons/delete.svg" alt="delete" />
 							</a>` : ''}

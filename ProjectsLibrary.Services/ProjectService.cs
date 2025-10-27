@@ -40,17 +40,27 @@ namespace ProjectsLibrary.Services
             return await query.ToListAsync();
         }
 
-        public async Task<PagedResult<Project>> GetPaginatedAsync(FilterParams filterParams, SortParams sortParams, PageParams pageParams)
+        public async Task<PagedResult<Project>> GetPaginatedAsync(FilterParams filterParams, SortParams sortParams, PageParams pageParams, int? employeeId = null)
         {
-            var allProjects = _repository.Get();
-            var filteredProjects = allProjects.Filter(filterParams).Sort(sortParams);
+            IQueryable<Project> projects; 
+
+            if (employeeId != null)
+            {
+                projects = _repository.Get().Where(p => p.Employees.Any(e => e.Id == employeeId) || p.ProjectManagerId == employeeId);
+            }
+            else
+            { 
+                projects = _repository.Get();
+            }
+
+            var filteredProjects = projects.Filter(filterParams).Sort(sortParams);
             var paginatedProjects = await filteredProjects.Paginate(pageParams).ToListAsync();
 
             var result = new PagedResult<Project>()
             {
                 Datas = paginatedProjects,
                 FilteredRecords = filteredProjects.Count(),
-                TotalRecords = allProjects.Count(),
+                TotalRecords = projects.Count(),
             };
 
             return result;

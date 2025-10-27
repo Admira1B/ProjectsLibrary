@@ -15,7 +15,7 @@
         }
         else
         {
-            <span></span>   
+            <span></span>
         }
 
         <h6 class="text-center mb-0">
@@ -86,8 +86,8 @@
                         </ul>
                     </div>
                     <div class="d-flex justify-content-center">
-                        <a id="addTaskBtn" class="btn btn-primary dt-btn-edit d-flex align-items-center gap-2" style="width: 20%" 
-                        asp-controller="Tasks" asp-action="Add" asp-route-id="">
+                        <a id="addTaskBtn" class="btn btn-primary dt-btn-edit d-flex align-items-center gap-2" style="width: 20%"
+                           asp-controller="Tasks" asp-action="Add" asp-route-id="">
                             <img src="/icons/plus.svg" alt="add">
                             <span>Add task</span>
                         </a>
@@ -114,18 +114,21 @@
                             <li id="projectManagerItem"></li>
                         </ul>
                     </div>
-                    <div id="addingEmployeeForm" class="input-group mb-3">
-                        <span id="addEmployeeToProjLabel" class="input-group-text" style="width: 30%">Adding an employee</span>
-                        <select id="addEmployeeToProjInput" class="form-select">
-                        </select>
-                        <button id="addEmployeeToProjBtn" type="button" class="btn btn-primary dt-btn-edit" style="width: 10rem;">Add employee</button>
-                    </div>
-                    <div id="removingEmployeeForm" class="input-group mb-3">
-                        <span id="removeEmployeeFromProjLabel" class="input-group-text" style="width: 30%">Removing an employee</span>
-                        <select id="removeEmployeeFromProjInput" class="form-select">
-                        </select>
-                        <button id="removeEmployeeFromProjBtn" type="button" class="btn btn-danger" style="width: 10rem;">Remove employee</button>
-                    </div>
+                    @if (Model.UserRole >= EmployeeRole.Manager)
+                    {
+                        <div id="addingEmployeeForm" class="input-group mb-3">
+                            <span id="addEmployeeToProjLabel" class="input-group-text" style="width: 30%">Adding an employee</span>
+                            <select id="addEmployeeToProjInput" class="form-select">
+                            </select>
+                            <button id="addEmployeeToProjBtn" type="button" class="btn btn-primary dt-btn-edit" style="width: 10rem;">Add employee</button>
+                        </div>
+                        <div id="removingEmployeeForm" class="input-group mb-3">
+                            <span id="removeEmployeeFromProjLabel" class="input-group-text" style="width: 30%">Removing an employee</span>
+                            <select id="removeEmployeeFromProjInput" class="form-select">
+                            </select>
+                            <button id="removeEmployeeFromProjBtn" type="button" class="btn btn-danger" style="width: 10rem;">Remove employee</button>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -176,7 +179,7 @@
                         'data': null,
                         'name': 'Name',
                         'render': function (data, type, row) {
-                            return renderNameColumn(row.id, row.name)
+                            return renderNameColumn(row.id, row.name, userRole, managerRole)
                         }
                     },
                     {
@@ -236,8 +239,10 @@
             return `<a href='/Projects/Details/${id}' class='dt-a-link'>${id}</a>`;
         };
 
-        function renderNameColumn(id, name) {
-            return `<a href='/Projects/Details/${id}' class='dt-a-link'>${name ?? ''}</a>`;
+        function renderNameColumn(id, name, userRole, managerRole) {
+            return userRole >= managerRole 
+            ? `<a href='/Projects/Details/${id}' class='dt-a-link'>${name ?? ''}</a>`
+            : `<p><strong>${name ?? ''}</strong></p>`;
         };
 
         function renderDateColumn(date) {
@@ -276,18 +281,18 @@
         function renderOptionsButtons(project, userRole, managerRole) {
             return `
                     <div class='d-flex justify-content-center align-items-center gap-3'>
-                        ${userRole >= managerRole ? 
+                        ${userRole >= managerRole ?
                         `<a class='btn btn-sm dt-btn-edit' href='/Projects/Details/${project.id}' data-bs-toggle='tooltip' title='Edit project'>
                                     <img src="icons/edit.svg" alt="edit" />
                         </a>` : ``}
-                        <a id="projectTasksBtn" class='btn btn-sm btn-info' href='#' 
+                        <a id="projectTasksBtn" class='btn btn-sm btn-info' href='#'
                         data-id='${project.id}'
                         data-name='${project.name}'
                         data-tasks='${encodeURIComponent(JSON.stringify(project.tasks))}'
                         data-bs-toggle='tooltip' title='View project tasks'>
                             <img src="icons/project_tasks.svg" alt="tasks" />
                         </a>
-                        <a id="projectEmployeesBtn" class='btn btn-sm btn-info' href='#' 
+                        <a id="projectEmployeesBtn" class='btn btn-sm btn-info' href='#'
                         data-id='${project.id}'
                         data-name='${project.name}'
                         data-project-manager='${encodeURIComponent(JSON.stringify(project.projectManager))}'
@@ -295,7 +300,7 @@
                         data data-bs-toggle='tooltip' title='View project employees'>
                             <img src="icons/project_employees.svg" alt="projects" />
                         </a>
-                        ${userRole >= managerRole ? 
+                        ${userRole >= managerRole ?
                         `<a id="deleteProjectBtn" class='btn btn-sm btn-danger' href='#' data-id='${project.id}' data-name='${project.name}' data-bs-toggle='tooltip' title='Delete project'>
                             <img src="icons/delete.svg" alt="delete" />
                         </a>` : ``}
@@ -339,7 +344,7 @@
             modalTitle.text(`Project's tasks info`);
 
             const addTaskBtn = document.getElementById('addTaskBtn');
-            
+
             if (addTaskBtn) {
                 const url = new URL(addTaskBtn.href, window.location.origin);
                 url.searchParams.set('id', projectId);

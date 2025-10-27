@@ -9,7 +9,7 @@ namespace ProjectsLibrary.Domain.Models.Entities
         public TaskPLStatus Status { get; set; }
         public string? Comment { get; set; }
         public int ProjectId { get; set; }
-        public Project? Project { get; set; }
+        public Project Project { get; set; } = null!;
         public int CreatorId { get; set; }
         public Employee? Creator { get; set; }
         public int ExecutorId { get; set; }
