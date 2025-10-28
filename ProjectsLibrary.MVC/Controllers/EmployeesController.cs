@@ -93,34 +93,6 @@ namespace ProjectsLibrary.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Logout()
-        {
-            Response.Cookies.Delete("auth-t");
-
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> Register(EmployeeAddDto employee)
-        {
-            var employeeEntity = _mapper.Map<Employee>(employee);
-
-            await _service.RegisterAsync(employeeEntity, employee.Password);
-
-            return RedirectToAction(actionName: "Login", controllerName: "Home");
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> Login(EmployeeLoginDto employee)
-        {
-            var token = await _service.LoginAsync(employee.Email, employee.Password);
-
-            AppendTokenToCookies(token);
-
-            return RedirectToAction(actionName: "Index", controllerName: "Tasks");
-        }
-
-        [HttpPost]
         public async Task<ActionResult> Get(GetPagedModel model)
         {
             var builtParams = ControllersExtencions.BuildGetMethodModelParams(model);
@@ -199,11 +171,6 @@ namespace ProjectsLibrary.MVC.Controllers
             var employee = await _service.GetByIdNoTrackingAsync(id);
             var employeeDto = _mapper.Map<EmployeeReadDto>(employee);
             return employeeDto;
-        }
-
-        private void AppendTokenToCookies(string token)
-        {
-            HttpContext.Response.Cookies.Append("auth-t", token);
         }
     }
 }

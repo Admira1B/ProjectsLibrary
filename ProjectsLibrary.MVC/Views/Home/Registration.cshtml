@@ -18,30 +18,32 @@
             <div class="w-100">
                 <h2 class="text-center mb-3">Create account</h2>
                 <div>
-                    <form asp-controller="Employees" asp-action="Register" method="post">
-                        <div class="d-flex justify-content-between gap-3">
-                            <div class="w-50">
-                                <label asp-for="Employee.FirstName" class="form-label form-title">Firstname</label>
-                                <input asp-for="Employee.FirstName" class="form-control" type="text"/>
-                                <span asp-validation-for="Employee.FirstName" class="invalid-feedback d-block"></span>
+                    <form asp-controller="Home" asp-action="Register" method="post">
+                        <div asp-validation-summary="All" class="text-danger">
+                            <div class="d-flex justify-content-between gap-3">
+                                <div class="w-50">
+                                    <label asp-for="Employee.FirstName" class="form-label form-title text-clr-main">Firstname</label>
+                                    <input asp-for="Employee.FirstName" class="form-control" type="text" />
+                                    <span asp-validation-for="Employee.FirstName" class="invalid-feedback d-block"></span>
+                                </div>
+                                <div class="w-50">
+                                    <label asp-for="Employee.LastName" class="form-label form-title text-clr-main">Lastname</label>
+                                    <input asp-for="Employee.LastName" class="form-control" type="text" />
+                                    <span asp-validation-for="Employee.LastName" class="invalid-feedback d-block"></span>
+                                </div>
                             </div>
-                            <div class="w-50">
-                                <label asp-for="Employee.LastName" class="form-label form-title">Lastname</label>
-                                <input asp-for="Employee.LastName" class="form-control" type="text" />
-                                <span asp-validation-for="Employee.LastName" class="invalid-feedback d-block"></span>
+                            <div class="mb-3">
+                                <label asp-for="Employee.Email" class="form-label form-title text-clr-main"></label>
+                                <input asp-for="Employee.Email" class="form-control" type="email" value="@(!string.IsNullOrWhiteSpace(Model.InitialEmail) ? Model.InitialEmail : "")" />
+                                <span asp-validation-for="Employee.Email" class="invalid-feedback d-block"></span>
                             </div>
+                            <div class="mb-3">
+                                <label asp-for="Employee.Password" class="form-label form-title text-clr-main"></label>
+                                <input asp-for="Employee.Password" class="form-control" type="password" />
+                                <span asp-validation-for="Employee.Password" class="invalid-feedback d-block"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary dt-btn-edit w-100 mt-3">Sign Up</button>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="Employee.Email" class="form-label form-title"></label>
-                            <input asp-for="Employee.Email" class="form-control" type="email" value="@Model.InitialEmail" />
-                            <span asp-validation-for="Employee.Email" class="invalid-feedback d-block"></span>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="Employee.Password" class="form-label form-title"></label>
-                            <input asp-for="Employee.Password" class="form-control" type="password" />
-                            <span asp-validation-for="Employee.Password" class="invalid-feedback d-block"></span>
-                        </div>
-                        <button type="submit" class="btn btn-primary dt-btn-edit w-100 mt-3">Sign Up</button>
                     </form>
                     <div class="text-center mt-2">
                         <p class="text-clr-main">

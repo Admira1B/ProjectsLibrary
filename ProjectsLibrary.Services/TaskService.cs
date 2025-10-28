@@ -37,7 +37,7 @@ namespace ProjectsLibrary.Services
             return await query.ToListAsync();
         }
 
-        public async Task<PagedResult<TaskPL>> GetPaginatedAsync(FilterParams filterParams, SortParams sortParams, PageParams pageParams, int? employeeId)
+        public async Task<PagedResult<TaskPL>> GetPaginatedAsync(FilterParams filterParams, SortParams sortParams, PageParams pageParams, int? employeeId = null)
         {
             IQueryable<TaskPL> tasks;
 

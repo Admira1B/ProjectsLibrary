@@ -63,20 +63,24 @@ namespace ProjectsLibrary.MVC.Controllers
                 return NotFound();
             }
 
+
             var projectDto = _mapper.Map<ProjectUpdateDto>(project);
 
             var employees = await _employeeService.GetDataOnlyAsync();
             var companies = await _companyService.GetDataOnlyAsync();
+            var projectManager = await _employeeService.GetByIdAsync(project.ProjectManagerId);
 
             var employeesDtos = _mapper.Map<List<EmployeeReadDto>>(employees);
             var companiesDtos = _mapper.Map<List<CompanyReadDto>>(companies);
+            var projectManagerDto = _mapper.Map<EmployeeShortDto>(projectManager);
 
             var model = new DetailsProjectViewModel()
             {
                 Id = id,
                 Project = projectDto,
+                ProjectManager = projectManagerDto,
                 Employees = employeesDtos,
-                Companies = companiesDtos,
+                Companies = companiesDtos
             };
 
             return View(model);

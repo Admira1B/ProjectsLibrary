@@ -103,28 +103,11 @@
                 else
                 {
                     <div class="mb-3">
-                        @if (Convert.ToInt32(id) == Model.Project.ProjectManagerId)
-                        {
                             <label asp-for="Project.ProjectManagerId" class="form-label form-title">Project manager</label>
                             <select asp-for="Project.ProjectManagerId" class="form-select">
-                                <option value=@(Convert.ToInt32(id)) selected>@name</option>
+                                <option value="@Model.ProjectManager.Id" selected>@($"{Model.ProjectManager.FirstName} {Model.ProjectManager.LastName}")</option>
                             </select>
                             <span asp-validation-for="Project.ProjectManagerId" class="invalid-feedback d-block"></span>
-                        }
-                        else
-                        {
-                            <label asp-for="Project.ProjectManagerId" class="form-label form-title">Project manager</label>
-                            <select asp-for="Project.ProjectManagerId" class="form-select">
-                                @foreach (var employee in Model.Employees)
-                                {
-                                    if (employee.Id == Model.Project.ProjectManagerId)
-                                    {
-                                        <option value="@employee.Id" selected>@($"{employee.FirstName} {employee.LastName}")</option>
-                                    }
-                                }
-                            </select>
-                            <span asp-validation-for="Project.ProjectManagerId" class="invalid-feedback d-block"></span>
-                        }
                     </div>
                 }
             }

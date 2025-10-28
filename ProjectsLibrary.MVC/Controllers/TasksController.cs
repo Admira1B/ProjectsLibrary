@@ -91,16 +91,19 @@ namespace ProjectsLibrary.MVC.Controllers
             }
 
             var employees = await _employeeService.GetDataOnlyAsync();
+            var taskCreator = await _employeeService.GetByIdNoTrackingAsync(taskReadDto.CreatorId);
 
             var projectsDtos = _mapper.Map<List<ProjectReadDto>>(projects);
             var employeesDtos = _mapper.Map<List<EmployeeReadDto>>(employees);
+            var taskCreatorDto = _mapper.Map<EmployeeShortDto>(taskCreator);
 
             var model = new DetailsTaskViewModel()
             {
                 Id = id,
                 Task = taskUpdateDto,
                 Projects = projectsDtos,
-                Employees = employeesDtos
+                Employees = employeesDtos,
+                TaskCreator = taskCreatorDto
             };
 
             return View(model);

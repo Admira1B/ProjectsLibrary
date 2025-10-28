@@ -10,5 +10,6 @@ namespace ProjectsLibrary.MVC.Models.Task
         public TaskUpdateDto Task { get; set; } = null!;
         public List<ProjectReadDto> Projects { get; set; } = [];
         public List<EmployeeReadDto> Employees { get; set; } = [];
+        public EmployeeShortDto TaskCreator { get; set; } = null!;
     }
 }

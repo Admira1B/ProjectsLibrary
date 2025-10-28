@@ -10,5 +10,6 @@ namespace ProjectsLibrary.MVC.Models.Project
         public ProjectUpdateDto Project { get; set; } = null!; 
         public List<EmployeeReadDto> Employees { get; set; } = [];
         public List<CompanyReadDto> Companies { get; set; } = [];
+        public EmployeeShortDto ProjectManager { get; set; } = null!;
     }
 }

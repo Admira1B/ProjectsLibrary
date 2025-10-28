@@ -30,26 +30,6 @@ namespace ProjectsLibrary.API.Middlewares
 
             switch (exception)
             {
-                case CreatedEmployeeNotRegisteredException notRegisteredException:
-                    status = HttpStatusCode.BadRequest;
-                    message = notRegisteredException.Message;
-                    detail = notRegisteredException.Details;
-                    break;
-                case EmailNotRegisteredException emailNotRegisteredException:
-                    status = HttpStatusCode.BadRequest;
-                    message = emailNotRegisteredException.Message;
-                    detail = emailNotRegisteredException.Details;
-                    break;
-                case EmployeeAlreadyExistsException alreadyExistsException:
-                    status = HttpStatusCode.BadRequest;
-                    message = alreadyExistsException.Message;
-                    detail = alreadyExistsException.Details;
-                    break;
-                case IncorrectEmployeePasswordException passwordException:
-                    status = HttpStatusCode.BadRequest;
-                    message = passwordException.Message;
-                    detail = passwordException.Details;
-                    break;
                 case JwtOptionsNotConfiguratedException optionsNotConfiguratedException:
                     status = HttpStatusCode.InternalServerError;
                     message = optionsNotConfiguratedException.Message;

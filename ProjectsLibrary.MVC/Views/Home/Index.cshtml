@@ -9,7 +9,7 @@
         <div class="nav-right">
             @if (User?.Identity?.IsAuthenticated == true)
             {
-                <form asp-controller="Employees" asp-action="Logout" method="post" class="d-inline">
+                <form asp-controller="Home" asp-action="Logout" method="post" class="d-inline">
                     <button type="submit" class="btn btn-light d-flex align-items-center justify-content-center gap-2">
                         Sign out
                         <img src="~/icons/signout.svg" />
@@ -43,7 +43,7 @@
                         </h3>
                     </div>
                     <div>
-                        <form asp-controller="Employees" asp-action="Logout" method="post" class="d-inline">
+                        <form asp-controller="Home" asp-action="Logout" method="post" class="d-inline">
                             <button type="submit" class="btn btn-light d-flex align-items-center justify-content-center gap-2" style="width: 140px;">
                                 Sign out
                                 <img src="~/icons/signout.svg" />

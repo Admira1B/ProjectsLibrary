@@ -18,18 +18,20 @@
             <div class="w-100">
                 <h2 class="text-center mb-3">Authorization</h2>
                 <div>
-                    <form asp-controller="Employees" asp-action="Login" method="post">
-                        <div class="mb-3">
-                            <label asp-for="Employee.Email" class="form-label form-title"></label>
-                            <input asp-for="Employee.Email" class="form-control" type="email" />
-                            <span asp-validation-for="Employee.Email" class="invalid-feedback d-block"></span>
+                    <form asp-controller="Home" asp-action="Login" method="post">
+                        <div asp-validation-summary="All" class="text-danger">
+                            <div class="mb-3">
+                                <label asp-for="Employee.Email" class="form-label form-title text-clr-main"></label>
+                                <input asp-for="Employee.Email" class="form-control" type="email" />
+                                <span asp-validation-for="Employee.Email" class="invalid-feedback d-block"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Employee.Password" class="form-label form-title text-clr-main"></label>
+                                <input asp-for="Employee.Password" class="form-control" type="password" />
+                                <span asp-validation-for="Employee.Password" class="invalid-feedback d-block"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary dt-btn-edit w-100 mt-3">Sign In</button>
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="Employee.Password" class="form-label form-title"></label>
-                            <input asp-for="Employee.Password" class="form-control" type="password" />
-                            <span asp-validation-for="Employee.Password" class="invalid-feedback d-block"></span>
-                        </div>
-                        <button type="submit" class="btn btn-primary dt-btn-edit w-100 mt-3">Sign In</button>
                     </form>
                     <div class="text-center mt-2">
                         <p class="text-clr-main">
