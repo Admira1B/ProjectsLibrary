@@ -1,0 +1,399 @@
+﻿@model ProjectsLibrary.MVC.Models.Task.IndexTaskViewModel;
+@{
+	ViewData["Title"] = "Tasks";
+}
+
+<div class="container col-12 py-1">
+
+	<!-- HEADER SECTION -->
+	<header class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3" role="banner">
+		<a class="btn btn-outline-secondary btn-dark text-clr-sec d-flex align-items-center gap-2"
+		   asp-controller="Tasks"
+		   asp-action="Add"
+		   role="button"
+		   aria-label="Add new task">
+			<img src="/icons/plus.svg" alt="Add task icon">
+			<span>Add task</span>
+		</a>
+
+		<nav aria-label="Breadcrumb">
+			<h6 class="text-center mb-0">
+				ProjectsLibrary &gt; <span class="text-clr-info" aria-current="page">Tasks</span>
+			</h6>
+		</nav>
+	</header>
+
+	<!-- SEARCH SECTION -->
+	<section class="mb-4" aria-label="Search tasks">
+		<label for="searchInput" class="visually-hidden">Search tasks</label>
+		<input type="search"
+			   id="searchInput"
+			   class="form-control form-control-lg"
+			   placeholder="Search tasks..."
+			   aria-label="Search tasks"
+			   style="width: 100%;">
+	</section>
+
+	<!-- TABLE SECTION -->
+	<section class="table-container" aria-label="Tasks list">
+		<table id="tasks-table"
+			   class="table table-bordered table-hover table-striped mb-0"
+			   aria-describedby="tasks-table-description">
+			<caption id="tasks-table-description" class="visually-hidden">
+				List of tasks with their IDs, names, statuses, comments, creators, executors and available actions
+			</caption>
+			<thead class="table-dark">
+				<tr class="text-center">
+					<th scope="col">ID</th>
+					<th scope="col">Task</th>
+					<th scope="col">Status</th>
+					<th scope="col">Comment</th>
+					<th scope="col">Creator</th>
+					<th scope="col">Executor</th>
+					<th scope="col" class="text-center">Options</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- Server-side DataTable loading -->
+			</tbody>
+		</table>
+	</section>
+
+	<!-- DELETE CONFIRMATION MODAL -->
+	<div class="modal fade"
+		 id="taskDeleteModal"
+		 tabindex="-1"
+		 aria-labelledby="taskDeleteLabel"
+		 aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered" style="width: 33rem;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 id="taskDeleteLabel" class="modal-title h5">
+						Confirm Task Deletion
+					</h2>
+					<img src="icons/warning_black.svg"
+						 alt="Warning icon"
+						 style="height: 35px;"
+						 aria-hidden="true">
+				</div>
+				<div class="modal-body">
+					<div class="pb-1">
+						<p class="text-center modal-text" id="taskDeleteConfirmationText" role="alert"></p>
+					</div>
+					<div class="d-flex justify-content-between">
+						<button type="button"
+								class="btn btn-secondary"
+								data-bs-dismiss="modal"
+								aria-label="Cancel task deletion">
+							Cancel
+						</button>
+						<button type="button"
+								class="btn btn-danger"
+								id="confirmTaskDeleteBtn"
+								aria-label="Confirm task deletion">
+							Delete Task
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        const userRole = @((int)Model.UserRole);
+        const managerRole = @((int)EmployeeRole.Manager);
+
+        const TasksConfig = {
+            urls: {
+                getTasks: '@Url.Action("Get", "Tasks")',
+                deleteTask: '@Url.Action("Delete", "Tasks")',
+                taskDetails: '@Url.Action("Details", "Tasks")'
+            },
+            constants: {
+                userRole: userRole,
+                managerRole: managerRole,
+                pageLength: 10,
+                searchDelay: 500
+            }
+        };
+
+        let dataTable;
+        let searchTimeout;
+
+        $(document).ready(function () {
+            initializeDataTable();
+            setupEventHandlers();
+        });
+
+        function initializeDataTable() {
+            try {
+                dataTable = $('#tasks-table').DataTable({
+                    dom: "t<'row'<'col-6'i><'col-6'p>>",
+                    processing: true,
+                    serverSide: true,
+                    orderFixed: false,
+                    orderReset: false,
+                    orderMulti: false,
+                    order: [[0, 'asc']],
+                    orderSequence: ['asc', 'desc'],
+                    pageLength: TasksConfig.constants.pageLength,
+                    pagingType: 'simple_numbers',
+                    language: {
+                        emptyTable: 'No tasks found',
+                        info: 'Showing _START_ to _END_ of _TOTAL_ tasks',
+                        infoEmpty: 'Showing 0 to 0 of 0 tasks',
+                        zeroRecords: 'No matching tasks found'
+                    },
+                    ajax: {
+                      url: TasksConfig.urls.getTasks,
+                      type: 'POST',
+                      dataType: 'json',
+                      data: function (d) {
+                        var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
+                        d.sortColumn = d.columns[order.column].name;
+                        d.sortDirection = order.dir;
+                        d.searchingValue = d.search.value;
+                        d.searchableFieldsNames = ['name'];
+                      },
+                      error: function(xhr, error, thrown) {
+                          console.error('DataTables AJAX error:', error);
+                      }
+                    },
+                    columns: [
+                        {
+                            'data': null,
+                            'name': 'Id',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderIdColumn(row.id, TasksConfig.urls.taskDetails);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'Name',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderNameColumn(row.id, row.name, TasksConfig.urls.taskDetails);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'Status',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderStatusColumn(row.statusString);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'Comment',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderCommentColumn(row.comment);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'Creator',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderPersonName(row.creator?.firstName, row.creator?.lastName, true);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'Executor',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderPersonName(row.executor?.firstName, row.executor?.lastName, false);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderOptionsButtons(
+                                    row.id,
+                                    row.name,
+                                    TasksConfig.constants.userRole,
+                                    TasksConfig.constants.managerRole,
+                                    TasksConfig.urls.taskDetails
+                                );
+                            }
+                        }
+                    ],
+                    columnDefs: [
+                        { visible: false, targets: 0 },
+                        { width: '20%', targets: 1 },
+                        { width: '20%', targets: 3 },
+                        {
+                            targets: [4, 5, 6],
+                            orderable: false
+                        }
+                    ]
+                });
+
+            } catch (error) {
+                console.error('Error initializing Tasks DataTable:', error);
+            }
+        }
+
+        function setupEventHandlers() {
+            setupSearchHandler();
+            setupDeleteHandlers();
+        }
+
+        function setupSearchHandler() {
+            $("#searchInput").on("keyup", function (event) {
+                const val = $(this).val();
+
+                if (event.key === "Enter" || event.keyCode === 13) {
+                    clearTimeout(searchTimeout);
+                    dataTable.search(val).draw();
+                    return;
+                }
+
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function () {
+                    dataTable.search(val).draw();
+                }, TasksConfig.constants.searchDelay);
+            });
+        }
+
+        function setupDeleteHandlers() {
+            $(document).on('click', '.delete-btn', function(e) {
+                e.preventDefault();
+                handleDeleteClick(this);
+            });
+
+            $('#confirmTaskDeleteBtn').on('click', function() {
+                const id = $('#taskDeleteModal').data('taskId');
+
+                if (!id) {
+                    console.error('No task ID found for deletion');
+                    return;
+                }
+
+                const $btn = $(this);
+                const originalText = $btn.html();
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
+
+                $.ajax({
+                    url: `Tasks/Delete/${id}`,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (response) {
+                        dataTable.draw();
+
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('taskDeleteModal'));
+                        modal.hide();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Delete error:', error, xhr);
+                        alert('Error deleting task. Please try again.');
+
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('taskDeleteModal'));
+                        modal.hide();
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        }
+
+        function handleDeleteClick(button) {
+            const id = $(button).data('id');
+            const name = $(button).data('name');
+
+            $('#taskDeleteModal').data('taskId', id);
+            $('#taskDeleteModal').data('taskName', name);
+
+            $('#taskDeleteConfirmationText').text(`Are you sure you want to delete the "${name}" task?`);
+
+            $('#confirmTaskDeleteBtn').prop('disabled', false).html('Delete Task');
+
+            const modal = new bootstrap.Modal(document.getElementById('taskDeleteModal'));
+            modal.show();
+        }
+
+        const SafeRenderer = {
+            escapeHtml: function(unsafe) {
+                if (unsafe == null) return '';
+                return String(unsafe)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            },
+
+            renderIdColumn: function(id, detailsUrl) {
+                const safeId = this.escapeHtml(id);
+                return `<a href='${detailsUrl}/${safeId}' class='dt-a-link'>${safeId}</a>`;
+            },
+
+            renderNameColumn: function(id, name, detailsUrl) {
+                const safeId = this.escapeHtml(id);
+                const safeName = this.escapeHtml(name || '');
+                return `<a href='${detailsUrl}/${safeId}' class='dt-a-link'>${safeName}</a>`;
+            },
+
+            renderStatusColumn: function(status) {
+                const safeStatus = this.escapeHtml(status || '');
+                return `<span class="text-muted"><strong>${safeStatus}</strong></span>`;
+            },
+
+            renderCommentColumn: function(comment) {
+                const safeComment = this.escapeHtml(comment || 'No comment on this task');
+                return `<div class="fixed-height"><span class="text-muted">${safeComment}</span></div>`;
+            },
+
+            renderPersonName: function(firstName, lastName, isCreator = false) {
+                const safeFirstName = this.escapeHtml(firstName || '');
+                const safeLastName = this.escapeHtml(lastName || '');
+                const fullName = `${safeFirstName} ${safeLastName}`.trim();
+
+                if (isCreator) {
+                    return `<span><strong>${fullName || 'Unknown'}</strong></span>`;
+                }
+                return `<span>${fullName || 'Not assigned'}</span>`;
+            },
+
+            renderOptionsButtons: function(id, name, userRole, managerRole, detailsUrl) {
+                const safeId = this.escapeHtml(id);
+                const safeName = this.escapeHtml(name || '');
+                const canDelete = userRole >= managerRole;
+
+                const editButton = `
+                    <a class='btn btn-sm dt-btn-edit'
+                       href='${detailsUrl}/${safeId}'
+                       data-bs-toggle='tooltip'
+                       title='Edit task'
+                       aria-label='Edit task ${safeName}'>
+                        <img src="/icons/edit.svg" alt="Edit icon" />
+                    </a>`;
+
+                const deleteButton = canDelete ? `
+                    <a class='btn btn-sm btn-danger delete-btn'
+                       href='#'
+                       data-id='${safeId}'
+                       data-name='${safeName}'
+                       data-bs-toggle='tooltip'
+                       title='Delete task'
+                       aria-label='Delete task ${safeName}'>
+                        <img src="/icons/delete.svg" alt="Delete icon" />
+                    </a>` : '';
+
+                return `
+                    <div class='d-flex justify-content-center align-items-center gap-3' role='group' aria-label='Task actions'>
+                        ${editButton}
+                        ${deleteButton}
+                    </div>`;
+            }
+        };
+
+        $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+            console.error('AJAX Error:', {
+                url: ajaxSettings.url,
+                status: jqXHR.status,
+                error: thrownError
+            });
+        });
+    </script>
+}

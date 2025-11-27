@@ -1,0 +1,649 @@
+﻿@model ProjectsLibrary.MVC.Models.Employee.IndexEmployeeViewModel;
+
+@{
+    ViewData["Title"] = "Employees";
+}
+
+<div class="container col-12 py-1">
+    <!-- HEADER SECTION -->
+    <header class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3" role="banner">
+        @if (Model.UserRole >= EmployeeRole.Supervisor) {
+            <a class="btn btn-outline-secondary btn-dark text-clr-sec d-flex align-items-center gap-2"
+               asp-controller="Employees"
+               asp-action="Add"
+               role="button"
+               aria-label="Add new employee">
+                <img src="/icons/plus.svg" alt="Add employee icon">
+                <span>Add employee</span>
+            </a>
+        } else {
+            <span aria-hidden="true"></span>
+        }
+
+        <nav aria-label="Breadcrumb">
+            <h6 class="text-center mb-0">
+                ProjectsLibrary &gt; <span class="text-clr-info" aria-current="page">Employees</span>
+            </h6>
+        </nav>
+    </header>
+
+    <!-- SEARCH SECTION -->
+    <section class="mb-4" aria-label="Search employees">
+        <label for="searchInput" class="visually-hidden">Search employees</label>
+        <input type="search"
+               id="searchInput"
+               class="form-control form-control-lg"
+               placeholder="Search employees..."
+               aria-label="Search employees"
+               style="width: 100%;">
+    </section>
+
+    <!-- TABLE SECTION -->
+    <section class="table-container" aria-label="Employees list">
+        <table id="employees-table"
+               class="table table-bordered table-hover table-striped mb-0"
+               aria-describedby="employees-table-description">
+            <caption id="employees-table-description" class="visually-hidden">
+                List of employees with their IDs, names, emails and available actions
+            </caption>
+            <thead class="table-dark">
+                <tr class="text-center">
+                    <th scope="col">ID</th>
+                    <th scope="col">Employee</th>
+                    <th scope="col">Email</th>
+                    <th scope="col" class="text-center">Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Server-side DataTable loading -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div class="modal fade"
+         id="employeeDeleteModal"
+         tabindex="-1"
+         aria-labelledby="employeeDeleteLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="width: 33rem;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="employeeDeleteLabel" class="modal-title h5">
+                        Confirm Employee Deletion
+                    </h2>
+                    <img src="icons/warning_black.svg"
+                         alt="Warning icon"
+                         style="height: 35px;"
+                         aria-hidden="true">
+                </div>
+                <div class="modal-body">
+                    <div class="pb-1">
+                        <p class="text-center modal-text" id="employeeDeleteConfirmationText" role="alert"></p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                                aria-label="Cancel employee deletion">
+                            Cancel
+                        </button>
+                        <button type="button"
+                                class="btn btn-danger"
+                                id="confirmEmployeeDeleteBtn"
+                                aria-label="Confirm employee deletion">
+                            Delete Employee
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMPLOYEE TASKS MODAL -->
+    <div id="employeeTasksModal"
+         class="modal fade"
+         tabindex="-1"
+         aria-labelledby="employeeTasksModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="employeeTasksModalLabel" class="modal-title h5">
+                        Employee Tasks
+                    </h2>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close tasks modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between gap-3 mt-0 pb-1 mb-2">
+
+                        <!-- EXECUTING TASKS SECTION -->
+                        <section style="width:50%" aria-labelledby="executingTasksHeading">
+                            <h3 id="executingTasksHeading" class="h6 mt-0 mb-2">
+                                Executing Tasks
+                            </h3>
+                            <ul id="executingTasksList"
+                                class="list-group mb-2 scrolling-list"
+                                aria-label="List of tasks being executed by the employee">
+                            </ul>
+                        </section>
+
+                        <!-- CREATED TASKS SECTION -->
+                        <section style="width:50%" aria-labelledby="createdTasksHeading">
+                            <h3 id="createdTasksHeading" class="h6 mt-0 mb-2">
+                                Created Tasks
+                            </h3>
+                            <ul id="createdTasksList"
+                                class="list-group mb-2 scrolling-list"
+                                aria-label="List of tasks created by the employee">
+                            </ul>
+                        </section>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <a id="addTaskBtn"
+                           class="btn btn-primary dt-btn-edit d-flex align-items-center gap-2"
+                           style="width: 20%"
+                           asp-controller="Tasks"
+                           asp-action="Add"
+                           role="button"
+                           aria-label="Add new task">
+                            <img src="/icons/plus.svg" alt="Add task icon">
+                            <span>Add task</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+    <!-- EMPLOYEE PROJECTS MODAL -->
+    <div id="employeeProjectsModal"
+         class="modal fade"
+         tabindex="-1"
+         aria-labelledby="employeeProjectsModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="width:30rem;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="employeeProjectsModalLabel" class="modal-title h5">
+                        Employee Projects
+                    </h2>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close projects modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- MANAGED PROJECTS SECTION -->
+                    <section class="mb-4" aria-labelledby="managedProjectsHeading">
+                        <h3 id="managedProjectsHeading" class="h6 mt-0 mb-2">
+                            Managed Projects
+                        </h3>
+                        <ul id="managedProjectsList"
+                            class="list-group mb-2 scrolling-list"
+                            aria-label="List of projects managed by the employee">
+                        </ul>
+                    </section>
+
+                    <!-- EXECUTING PROJECTS SECTION -->
+                    <section aria-labelledby="executingProjectsHeading">
+                        <h3 id="executingProjectsHeading" class="h6 mt-0 mb-2">
+                            Working on Projects
+                        </h3>
+                        <ul id="executingProjectsList"
+                            class="list-group mb-2 scrolling-list"
+                            aria-label="List of projects the employee is working on">
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div> 
+</div> 
+
+@section Scripts {
+    <script type="text/javascript">
+        const userRole = @((int)Model.UserRole);
+        const supervisorRole = @((int)EmployeeRole.Supervisor);
+
+        const EmployeesConfig = {
+            urls: {
+                getEmployees: '@Url.Action("Get", "Employees")',
+                deleteEmployee: '@Url.Action("Delete", "Employees")',
+                employeeDetails: '@Url.Action("Details", "Employees")',
+                taskDetails: '@Url.Action("Details", "Tasks")',
+                projectDetails: '@Url.Action("Details", "Projects")',
+                getEmployeeWithTasks: '/Employees/GetEmployeeWithTasks',
+                getEmployeeWithProjects: '/Employees/GetEmployeeWithProjects'
+            },
+            constants: {
+                userRole: userRole,
+                supervisorRole: supervisorRole,
+                pageLength: 10,
+                searchDelay: 500
+            }
+        };
+
+        let dataTable;
+        let searchTimeout;
+
+        $(document).ready(function () {
+            initializeDataTable();
+            setupEventHandlers();
+        });
+
+        function initializeDataTable() {
+            try {
+                dataTable = $('#employees-table').DataTable({
+                    dom: "t<'row'<'col-6'i><'col-6'p>>",
+                    processing: true,
+                    serverSide: true,
+                    orderFixed: false,
+                    orderReset: false,
+                    orderMulti: false,
+                    order: [[0, 'asc']],
+                    orderSequence: ['asc', 'desc'],
+                    pageLength: EmployeesConfig.constants.pageLength,
+                    pagingType: 'simple_numbers',
+                    language: {
+                        emptyTable: 'No employees found',
+                        info: 'Showing _START_ to _END_ of _TOTAL_ employees',
+                        infoEmpty: 'Showing 0 to 0 of 0 employees',
+                        zeroRecords: 'No matching employees found'
+                    },
+                    ajax: {
+                      url: EmployeesConfig.urls.getEmployees,
+                      type: 'POST',
+                      dataType: 'json',
+                      data: function (d) {
+                        var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
+                        d.sortColumn = d.columns[order.column].name;
+                        d.sortDirection = order.dir;
+                        d.searchingValue = d.search.value;
+                        d.searchableFieldsNames = ['firstName', 'lastName'];
+                      },
+                      error: function(xhr, error, thrown) {
+                          console.error('DataTables AJAX error:', error);
+                      }
+                    },
+                    columns: [
+                        {
+                            'data': null,
+                            'name': 'Id',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderIdColumn(row.id, EmployeesConfig.urls.employeeDetails);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'FirstName',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderNameColumn(
+                                    row.id,
+                                    row.firstName,
+                                    row.lastName,
+                                    EmployeesConfig.constants.userRole,
+                                    EmployeesConfig.constants.supervisorRole,
+                                    EmployeesConfig.urls.employeeDetails
+                                );
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'Email',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderEmailColumn(row.email);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderOptionsButtons(
+                                    row.id,
+                                    row.firstName,
+                                    row.lastName,
+                                    EmployeesConfig.constants.userRole,
+                                    EmployeesConfig.constants.supervisorRole
+                                );
+                            }
+                        }
+                    ],
+                    columnDefs: [
+                        { visible: false, targets: 0 },
+                        { width: '40%', targets: 1 },
+                        { width: '40%', targets: 2 },
+                        {
+                            'targets': 3,
+                            "orderable": false
+                        }
+                    ]
+                });
+
+            } catch (error) {
+                console.error('Error initializing Employees DataTable:', error);
+            }
+        }
+
+        function setupEventHandlers() {
+            setupSearchHandler();
+            setupModalHandlers();
+            setupDeleteHandlers();
+        }
+
+        function setupSearchHandler() {
+            $("#searchInput").on("keyup", function (event) {
+                const val = $(this).val();
+
+                if (event.key === "Enter" || event.keyCode === 13) {
+                    clearTimeout(searchTimeout);
+                    dataTable.search(val).draw();
+                    return;
+                }
+
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function () {
+                    dataTable.search(val).draw();
+                }, EmployeesConfig.constants.searchDelay);
+            });
+        }
+
+        function setupModalHandlers() {
+            $(document).on('click', '#employeeTasksBtn', function(e) {
+                e.preventDefault();
+                const employeeId = $(this).data('id');
+                const employeeName = $(this).data('name');
+                EmployeeModals.openTasksModal(employeeId, employeeName);
+            });
+
+            $(document).on('click', '#employeeProjectsBtn', function(e) {
+                e.preventDefault();
+                const employeeId = $(this).data('id');
+                const employeeName = $(this).data('name');
+                EmployeeModals.openProjectsModal(employeeId, employeeName);
+            });
+        }
+
+        function setupDeleteHandlers() {
+            $(document).on('click', '.delete-btn', function(e) {
+                e.preventDefault();
+                const employeeId = $(this).data('id');
+                const employeeName = $(this).data('name');
+                EmployeeModals.openDeleteModal(employeeId, employeeName);
+            });
+
+            $('#confirmEmployeeDeleteBtn').on('click', function() {
+                const employeeId = $('#employeeDeleteModal').data('employeeId');
+                EmployeeActions.deleteEmployee(employeeId);
+            });
+        }
+
+        const EmployeeModals = {
+            openTasksModal: async function(employeeId, employeeName) {
+                try {
+                    const modal = new bootstrap.Modal(document.getElementById('employeeTasksModal'));
+                    const employee = await $.ajax({
+                        url: `${EmployeesConfig.urls.getEmployeeWithTasks}/${employeeId}`,
+                        method: 'GET',
+                        dataType: 'json'
+                    });
+
+                    this.renderTasksModal(employeeName, employee.executingTasks, employee.createdTasks);
+                    modal.show();
+                } catch (error) {
+                    console.error('Error opening tasks modal:', error);
+                    alert('Error loading employee tasks');
+                }
+            },
+
+            renderTasksModal: function(employeeName, executingTasks, createdTasks) {
+                const modalTitle = $('#employeeTasksModalLabel');
+                const executingTasksList = $('#executingTasksList').empty();
+                const createdTasksList = $('#createdTasksList').empty();
+
+                modalTitle.text(`${SafeRenderer.escapeHtml(employeeName)} - Tasks`);
+
+                this.renderTaskList(executingTasks, executingTasksList, 'Employee have no executing tasks yet');
+                this.renderTaskList(createdTasks, createdTasksList, 'Employee has not created any tasks yet');
+            },
+
+            renderTaskList: function(tasks, listElement, emptyMessage) {
+                if (!tasks || tasks.length === 0) {
+                    listElement.append(`<li class="list-group-item text-muted">${emptyMessage}</li>`);
+                } else {
+                    tasks.forEach(task => {
+                        const taskItem = this.renderTaskItem(task);
+                        listElement.append(taskItem);
+                    });
+                }
+            },
+
+            renderTaskItem: function(task) {
+                const safeTaskName = SafeRenderer.escapeHtml(task.name);
+                const safeStatus = SafeRenderer.escapeHtml(task.statusString || 'No status');
+
+                return `
+                    <li class="list-group-item">
+                        <a href='${EmployeesConfig.urls.taskDetails}/${task.id}' class='dt-a-link'>${safeTaskName}</a>: ${safeStatus}
+                    </li>`;
+            },
+
+            openProjectsModal: async function(employeeId, employeeName) {
+                try {
+                    const modal = new bootstrap.Modal(document.getElementById('employeeProjectsModal'));
+                    const employee = await $.ajax({
+                        url: `${EmployeesConfig.urls.getEmployeeWithProjects}/${employeeId}`,
+                        method: 'GET',
+                        dataType: 'json'
+                    });
+
+                    this.renderProjectsModal(employeeName, employee.managedProjects, employee.workingProjects);
+                    modal.show();
+                } catch (error) {
+                    console.error('Error opening projects modal:', error);
+                    alert('Error loading employee projects');
+                }
+            },
+
+            renderProjectsModal: function(employeeName, managedProjects, workingProjects) {
+                const modalTitle = $('#employeeProjectsModalLabel');
+                const managedProjectsList = $('#managedProjectsList').empty();
+                const executingProjectsList = $('#executingProjectsList').empty();
+
+                modalTitle.text(`${SafeRenderer.escapeHtml(employeeName)} - Projects`);
+
+                this.renderProjectList(managedProjects, managedProjectsList, 'Employee have no managed projects');
+                this.renderProjectList(workingProjects, executingProjectsList, 'The employee is not yet working on any project');
+            },
+
+            renderProjectList: function(projects, listElement, emptyMessage) {
+                if (!projects || projects.length === 0) {
+                    listElement.append(`<li class="list-group-item text-muted">${emptyMessage}</li>`);
+                } else {
+                    projects.forEach(project => {
+                        const projectItem = this.renderProjectItem(project);
+                        listElement.append(projectItem);
+                    });
+                }
+            },
+
+            renderProjectItem: function(project) {
+                const safeProjectName = SafeRenderer.escapeHtml(project.name);
+                const startDate = SafeRenderer.formatDate(project.startDate, 'dd.MM.yyyy');
+                const endDate = SafeRenderer.formatDate(project.endDate, 'dd.MM.yyyy');
+
+                return `
+                    <li class="list-group-item">
+                        <a href='${EmployeesConfig.urls.projectDetails}/${project.id}' class='dt-a-link'>${safeProjectName}</a>: ${startDate} - ${endDate}
+                    </li>`;
+            },
+
+            openDeleteModal: function(employeeId, employeeName) {
+                $('#employeeDeleteModal').data('employeeId', employeeId);
+                $('#employeeDeleteModal').data('employeeName', employeeName);
+
+                const safeEmployeeName = SafeRenderer.escapeHtml(employeeName);
+                $('#employeeDeleteConfirmationText').text(`Are you sure you want to delete the employee "${safeEmployeeName}"?`);
+
+                $('#confirmEmployeeDeleteBtn').prop('disabled', false).html('Delete Employee');
+
+                const modal = new bootstrap.Modal(document.getElementById('employeeDeleteModal'));
+                modal.show();
+            }
+        };
+
+        const EmployeeActions = {
+            deleteEmployee: function(employeeId) {
+                const $btn = $('#confirmEmployeeDeleteBtn');
+                const originalText = $btn.html();
+
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
+
+                $.ajax({
+                    url: `${EmployeesConfig.urls.deleteEmployee}/${employeeId}`,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (response) {
+                        dataTable.draw();
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('employeeDeleteModal'));
+                        modal.hide();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Delete employee error:', error, xhr);
+                        alert('Error deleting employee. Please try again.');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('employeeDeleteModal'));
+                        modal.hide();
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            }
+        };
+
+        const SafeRenderer = {
+            escapeHtml: function(unsafe) {
+                if (unsafe == null) return '';
+                return String(unsafe)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            },
+
+            formatDate: function(dateString, format) {
+                if (!dateString) return 'Not set';
+
+                try {
+                    const parsedDate = new Date(dateString);
+                    if (isNaN(parsedDate.getTime())) return 'Invalid date';
+
+                    const day = ('0' + parsedDate.getDate()).slice(-2);
+                    const month = ('0' + (parsedDate.getMonth() + 1)).slice(-2);
+                    const year = parsedDate.getFullYear();
+
+                    if (format === 'dd.MM.yyyy') {
+                        return `${day}.${month}.${year}`;
+                    }
+                    if (format === 'dd/MM/yyyy') {
+                        return `${day}/${month}/${year}`;
+                    }
+                    return `${day}-${month}-${year}`;
+                } catch (error) {
+                    return 'Invalid date';
+                }
+            },
+
+            renderIdColumn: function(id, detailsUrl) {
+                const safeId = this.escapeHtml(id);
+                return `<a href='${detailsUrl}/${safeId}' class='dt-a-link'>${safeId}</a>`;
+            },
+
+            renderNameColumn: function(id, firstName, lastName, userRole, supervisorRole, detailsUrl) {
+                const safeId = this.escapeHtml(id);
+                const safeFirstName = this.escapeHtml(firstName || '');
+                const safeLastName = this.escapeHtml(lastName || '');
+                const fullName = `${safeFirstName} ${safeLastName}`.trim();
+
+                if (userRole >= supervisorRole) {
+                    return `<a href='${detailsUrl}/${safeId}' class='dt-a-link'>${fullName}</a>`;
+                }
+                return `<p>${fullName}</p>`;
+            },
+
+            renderEmailColumn: function(email) {
+                const safeEmail = this.escapeHtml(email || '');
+                return `<span class="text-muted"><strong>${safeEmail}</strong></span>`;
+            },
+
+            renderOptionsButtons: function(id, firstName, lastName, userRole, supervisorRole) {
+                const safeId = this.escapeHtml(id);
+                const safeFirstName = this.escapeHtml(firstName || '');
+                const safeLastName = this.escapeHtml(lastName || '');
+                const fullName = `${safeFirstName} ${safeLastName}`;
+                const canManage = userRole >= supervisorRole;
+
+                const editButton = canManage ? `
+                    <a class='btn btn-sm dt-btn-edit'
+                       href='${EmployeesConfig.urls.employeeDetails}/${safeId}'
+                       data-bs-toggle='tooltip'
+                       title='Edit employee'
+                       aria-label='Edit employee ${fullName}'>
+                        <img src="/icons/edit.svg" alt="Edit icon" />
+                    </a>` : '';
+
+                const tasksButton = `
+                    <a id='employeeTasksBtn' class='btn btn-sm btn-info'
+                       href='#'
+                       data-id='${safeId}'
+                       data-name='${fullName}'
+                       data-bs-toggle='tooltip'
+                       title='View employee tasks'
+                       aria-label='View tasks for employee ${fullName}'>
+                        <img src="/icons/employee_tasks.svg" alt="Tasks icon" />
+                    </a>`;
+
+                const projectsButton = `
+                    <a id='employeeProjectsBtn' class='btn btn-sm btn-info'
+                       href='#'
+                       data-id='${safeId}'
+                       data-name='${fullName}'
+                       data-bs-toggle='tooltip'
+                       title='View employee projects'
+                       aria-label='View projects for employee ${fullName}'>
+                        <img src="/icons/employee_projects.svg" alt="Projects icon" />
+                    </a>`;
+
+                const deleteButton = canManage ? `
+                    <a class='btn btn-sm btn-danger delete-btn'
+                       href='#'
+                       data-id='${safeId}'
+                       data-name='${fullName}'
+                       data-bs-toggle='tooltip'
+                       title='Delete employee'
+                       aria-label='Delete employee ${fullName}'>
+                        <img src="/icons/delete.svg" alt="Delete icon" />
+                    </a>` : '';
+
+                return `
+                    <div class='d-flex justify-content-center align-items-center gap-3' role='group' aria-label='Employee actions'>
+                        ${editButton}
+                        ${tasksButton}
+                        ${projectsButton}
+                        ${deleteButton}
+                    </div>`;
+            }
+        };
+
+        $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+            console.error('AJAX Error:', {
+                url: ajaxSettings.url,
+                status: jqXHR.status,
+                error: thrownError
+            });
+        });
+    </script>
+}

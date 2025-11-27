@@ -1,0 +1,819 @@
+﻿@model ProjectsLibrary.MVC.Models.Project.IndexProjectViewModel;
+@{
+    ViewData["Title"] = "Projects";
+}
+
+<div class="container col-12 py-1">
+
+    <!-- HEADER SECTION -->
+    <header class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3" role="banner">
+        @if (Model.UserRole >= EmployeeRole.Manager) {
+            <a class="btn btn-outline-secondary btn-dark text-clr-sec d-flex align-items-center gap-2"
+               asp-controller="Projects"
+               asp-action="Add"
+               role="button"
+               aria-label="Add new project">
+                <img src="/icons/plus.svg" alt="Add project icon">
+                <span>Add project</span>
+            </a>
+        } else {
+            <span aria-hidden="true"></span>
+        }
+
+        <nav aria-label="Breadcrumb">
+            <h6 class="text-center mb-0">
+                ProjectsLibrary &gt; <span class="text-clr-info" aria-current="page">Projects</span>
+            </h6>
+        </nav>
+    </header>
+
+    <!-- SEARCH SECTION -->
+    <section class="mb-4" aria-label="Search projects">
+        <label for="searchInput" class="visually-hidden">Search projects</label>
+        <input type="search"
+               id="searchInput"
+               class="form-control form-control-lg"
+               placeholder="Search projects..."
+               aria-label="Search projects"
+               style="width: 100%;">
+    </section>
+
+    <!-- TABLE SECTION -->
+    <section class="table-container" aria-label="Projects list">
+        <table id="projects-table"
+               class="table table-bordered table-hover table-striped mb-0"
+               aria-describedby="projects-table-description">
+            <caption id="projects-table-description" class="visually-hidden">
+                List of projects with their IDs, names, priorities, dates, customers, managers and available actions
+            </caption>
+            <thead class="table-dark">
+                <tr class="text-center">
+                    <!-- Добавлены scope="col" для лучшей доступности -->
+                    <th scope="col">ID</th>
+                    <th scope="col">Project</th>
+                    <th scope="col">Priority</th>
+                    <th scope="col">Start</th>
+                    <th scope="col">End date</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Manager</th>
+                    <th scope="col" class="text-center">Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Server-side DataTable loading -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div class="modal fade"
+         id="projectDeleteModal"
+         tabindex="-1"
+         aria-labelledby="projectDeleteLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" style="width: 33rem;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="projectDeleteLabel" class="modal-title h5">
+                        Confirm Project Deletion
+                    </h2>
+                    <img src="icons/warning_black.svg"
+                         alt="Warning icon"
+                         style="height: 35px;"
+                         aria-hidden="true">
+                </div>
+                <div class="modal-body">
+                    <div class="pb-1">
+                        <p class="text-center modal-text" id="projectDeleteConfirmationText" role="alert"></p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                                aria-label="Cancel project deletion">
+                            Cancel
+                        </button>
+                        <button type="button"
+                                class="btn btn-danger"
+                                id="confirmProjectDeleteBtn"
+                                aria-label="Confirm project deletion">
+                            Delete Project
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROJECT TASKS MODAL -->
+    <div id="projectsTasksModal"
+         class="modal fade"
+         tabindex="-1"
+         aria-labelledby="projectsTasksModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="projectsTasksModalLabel" class="modal-title h5">
+                        Project Tasks
+                    </h2>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close tasks modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mt-0 mb-2 pb-1">
+                        <h3 id="tasksListHeading" class="h6 mt-0 mb-2">
+                            Tasks List
+                        </h3>
+                        <ul id="tasksList"
+                            class="list-group mx-4 mb-2 scrolling-list"
+                            aria-label="List of project tasks">
+                        </ul>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <a id="addTaskBtn"
+                           class="btn btn-primary dt-btn-edit d-flex align-items-center gap-2"
+                           style="width: 20%"
+                           asp-controller="Tasks"
+                           asp-action="Add"
+                           asp-route-id=""
+                           role="button"
+                           aria-label="Add new task to project">
+                            <img src="/icons/plus.svg" alt="Add task icon">
+                            <span>Add task</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROJECT EMPLOYEES MODAL -->
+    <div id="projectsEmployeesModal"
+         class="modal fade"
+         tabindex="-1"
+         aria-labelledby="projectsEmployeesModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="projectsEmployeesModalLabel" class="modal-title h5">
+                        Project Team
+                    </h2>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close team modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- PROJECT MANAGER SECTION -->
+                    <section aria-labelledby="projectManagerHeading">
+                        <h3 id="projectManagerHeading" class="h6 mt-0 mb-2">
+                            Project Manager
+                        </h3>
+                        <ul class="list-group mx-4 mb-2" aria-label="Project manager information">
+                            <li id="projectManagerItem" ></li>
+                        </ul>
+                    </section>
+
+                    <!-- EMPLOYEES LIST SECTION -->
+                    <section class="mt-0 mb-2" aria-labelledby="employeesListHeading">
+                        <h3 id="employeesListHeading" class="h6 mt-0 mb-2">
+                            Team Members
+                        </h3>
+                        <ul id="employeesList"
+                            class="list-group mx-4 mb-2 scrolling-list"
+                            aria-label="List of employees working on the project">
+                        </ul>
+                    </section>
+
+                    <!-- CONDITIONAL MANAGEMENT FORMS -->
+                    @if (Model.UserRole >= EmployeeRole.Manager) {
+                        <!-- ADD EMPLOYEE FORM -->
+                        <section class="mb-3" aria-labelledby="addEmployeeSectionHeading">
+                            <h4 id="addEmployeeSectionHeading" class="visually-hidden">Add Employee to Project</h4>
+                            <div class="input-group mb-3" role="group" aria-labelledby="addEmployeeLabel">
+                                <span id="addEmployeeLabel" class="input-group-text" style="width: 30%">
+                                    Add Team Member
+                                </span>
+                                <select id="addEmployeeToProjInput"
+                                        class="form-select"
+                                        aria-describedby="addEmployeeHelp">
+                                    <option value="">Select employee...</option>
+                                </select>
+                                <button id="addEmployeeToProjBtn"
+                                        type="button"
+                                        class="btn btn-primary dt-btn-edit"
+                                        style="width: 10rem;"
+                                        aria-label="Add selected employee to project">
+                                    Add Employee
+                                </button>
+                            </div>
+                            <div id="addEmployeeHelp" class="visually-hidden">
+                                Select an employee to add to the project team
+                            </div>
+                        </section>
+
+                        <!-- REMOVE EMPLOYEE FORM -->
+                        <section aria-labelledby="removeEmployeeSectionHeading">
+                            <h4 id="removeEmployeeSectionHeading" class="visually-hidden">Remove Employee from Project</h4>
+                            <div class="input-group mb-3" role="group" aria-labelledby="removeEmployeeLabel">
+                                <span id="removeEmployeeLabel" class="input-group-text" style="width: 30%">
+                                    Remove Team Member
+                                </span>
+                                <select id="removeEmployeeFromProjInput"
+                                        class="form-select"
+                                        aria-describedby="removeEmployeeHelp">
+                                    <option value="">Select employee...</option>
+                                </select>
+                                <button id="removeEmployeeFromProjBtn"
+                                        type="button"
+                                        class="btn btn-danger"
+                                        style="width: 10rem;"
+                                        aria-label="Remove selected employee from project">
+                                    Remove Employee
+                                </button>
+                            </div>
+                            <div id="removeEmployeeHelp" class="visually-hidden">
+                                Select an employee to remove from the project team
+                            </div>
+                        </section>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        const userRole = @((int)Model.UserRole);
+        const managerRole = @((int)EmployeeRole.Manager);
+
+        const ProjectsConfig = {
+            urls: {
+                getProjects: '@Url.Action("Get", "Projects")',
+                deleteProject: '@Url.Action("Delete", "Projects")',
+                projectDetails: '@Url.Action("Details", "Projects")',
+                getProjectWithTasks: '/Projects/GetProjectWithTasks',
+                getProjectById: '/Projects/GetById',
+                getAvailableEmployees: '/Employees/GetDataOnlyWithoutWorking',
+                addEmployeeToProject: '/Projects',
+                removeEmployeeFromProject: '/Projects'
+            },
+            constants: {
+                userRole: userRole,
+                managerRole: managerRole,
+                pageLength: 10,
+                searchDelay: 500
+            }
+        };
+
+        let dataTable;
+        let searchTimeout;
+
+        $(document).ready(function () {
+            initializeDataTable();
+            setupEventHandlers();
+        });
+
+        function initializeDataTable() {
+            try {
+                dataTable = $('#projects-table').DataTable({
+                    dom: "t<'row'<'col-6'i><'col-6'p>>",
+                    processing: true,
+                    serverSide: true,
+                    orderFixed: false,
+                    orderReset: false,
+                    orderMulti: false,
+                    order: [[0, 'asc']],
+                    orderSequence: ['asc', 'desc'],
+                    pageLength: ProjectsConfig.constants.pageLength,
+                    pagingType: 'simple_numbers',
+                    language: {
+                        emptyTable: 'No projects found',
+                        info: 'Showing _START_ to _END_ of _TOTAL_ projects',
+                        infoEmpty: 'Showing 0 to 0 of 0 projects',
+                        zeroRecords: 'No matching projects found'
+                    },
+                    ajax: {
+                      url: ProjectsConfig.urls.getProjects,
+                      type: 'POST',
+                      dataType: 'json',
+                      data: function (d) {
+                        var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
+                        d.sortColumn = d.columns[order.column].name;
+                        d.sortDirection = order.dir;
+                        d.searchingValue = d.search.value;
+                        d.searchableFieldsNames = ['name'];
+                      },
+                      error: function(xhr, error, thrown) {
+                          console.error('DataTables AJAX error:', error);
+                      }
+                    },
+                    columns: [
+                        {
+                            'data': null,
+                            'name': 'Id',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderIdColumn(row.id, ProjectsConfig.urls.projectDetails);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'Name',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderNameColumn(
+                                    row.id,
+                                    row.name,
+                                    ProjectsConfig.constants.userRole,
+                                    ProjectsConfig.constants.managerRole,
+                                    ProjectsConfig.urls.projectDetails
+                                );
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'Priority',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderPriorityColumn(row.priority);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'StartDate',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderDateColumn(row.startDate);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'EndDate',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderDateColumn(row.endDate);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'Customer',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderCustomerColumn(row.company?.name);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'name': 'Manager',
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderManagerColumn(row.projectManager?.firstName, row.projectManager?.lastName);
+                            }
+                        },
+                        {
+                            'data': null,
+                            'render': function (data, type, row) {
+                                return SafeRenderer.renderOptionsButtons(
+                                    row,
+                                    ProjectsConfig.constants.userRole,
+                                    ProjectsConfig.constants.managerRole,
+                                    ProjectsConfig.urls.projectDetails
+                                );
+                            }
+                        }
+                    ],
+                    columnDefs: [
+                        { visible: false, targets: 0 },
+                        { width: '23%', targets: 1 },
+                        {
+                            orderable: false,
+                            targets: [5, 6, 7]
+                        }
+                    ]
+                });
+
+            } catch (error) {
+                console.error('Error initializing Projects DataTable:', error);
+            }
+        }
+
+        function setupEventHandlers() {
+            setupSearchHandler();
+            setupModalHandlers();
+            setupDeleteHandlers();
+            setupEmployeeManagementHandlers();
+        }
+
+        function setupSearchHandler() {
+            $("#searchInput").on("keyup", function (event) {
+                const val = $(this).val();
+
+                if (event.key === "Enter" || event.keyCode === 13) {
+                    clearTimeout(searchTimeout);
+                    dataTable.search(val).draw();
+                    return;
+                }
+
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function () {
+                    dataTable.search(val).draw();
+                }, ProjectsConfig.constants.searchDelay);
+            });
+        }
+
+        function setupModalHandlers() {
+            $(document).on('click', '#projectTasksBtn', function(e) {
+                e.preventDefault();
+                const projectId = $(this).data('id');
+                ProjectModals.openTasksModal(projectId);
+            });
+
+            $(document).on('click', '#projectEmployeesBtn', function(e) {
+                e.preventDefault();
+                const projectId = $(this).data('id');
+                const projectManager = JSON.parse(decodeURIComponent($(this).attr('data-project-manager')));
+                ProjectModals.openEmployeesModal(projectId, projectManager);
+            });
+        }
+
+        function setupDeleteHandlers() {
+            $(document).on('click', '#deleteProjectBtn', function(e) {
+                e.preventDefault();
+                const projectId = $(this).data('id');
+                const projectName = $(this).data('name');
+                ProjectModals.openDeleteModal(projectId, projectName);
+            });
+
+            $('#confirmProjectDeleteBtn').on('click', function() {
+                const projectId = $('#projectDeleteModal').data('projectId');
+                ProjectActions.deleteProject(projectId);
+            });
+        }
+
+        function setupEmployeeManagementHandlers() {
+            $('#addEmployeeToProjBtn').on('click', async function() {
+                const projectId = $('#projectsEmployeesModal').data('projectId');
+                const employeeId = $('#addEmployeeToProjInput').val();
+                await ProjectActions.addEmployee(projectId, employeeId);
+            });
+
+            $('#removeEmployeeFromProjBtn').on('click', async function() {
+                const projectId = $('#projectsEmployeesModal').data('projectId');
+                const employeeId = $('#removeEmployeeFromProjInput').val();
+                await ProjectActions.removeEmployee(projectId, employeeId);
+            });
+        }
+
+        const ProjectModals = {
+            openTasksModal: async function(projectId) {
+                try {
+                    const modal = new bootstrap.Modal(document.getElementById('projectsTasksModal'));
+
+                    const project = await $.ajax({
+                        url: `${ProjectsConfig.urls.getProjectWithTasks}/${projectId}`,
+                        method: 'GET',
+                        dataType: 'json'
+                    });
+
+                    this.renderTasksModal(projectId, project.tasks);
+                    modal.show();
+                } catch (error) {
+                    console.error('Error opening tasks modal:', error);
+                    alert('Error loading project tasks');
+                }
+            },
+
+            renderTasksModal: function(projectId, tasks) {
+                const modalTitle = $('#projectsTasksModalLabel');
+                const tasksList = $('#tasksList').empty();
+                const addTaskBtn = document.getElementById('addTaskBtn');
+
+                modalTitle.text(`Project Tasks`);
+
+                if (addTaskBtn) {
+                    const url = new URL(addTaskBtn.href, window.location.origin);
+                    url.searchParams.set('id', projectId);
+                    addTaskBtn.href = url.toString();
+                }
+
+                if (!tasks || tasks.length === 0) {
+                    tasksList.append('<li class="list-group-item text-muted">No tasks on this project yet</li>');
+                } else {
+                    tasks.forEach((task, index) => {
+                        const taskItem = this.renderTaskItem(task, index + 1);
+                        tasksList.append(taskItem);
+                    });
+                }
+            },
+
+            renderTaskItem: function(task, index) {
+                const executorName = task.executor ?
+                    `${task.executor.firstName} ${task.executor.lastName}` : 'Unassigned';
+
+                const statusText = this.getTaskStatusText(task.status);
+                const safeTaskName = SafeRenderer.escapeHtml(task.name);
+                const safeExecutorName = SafeRenderer.escapeHtml(executorName);
+
+                return `
+                    <li class="list-group-item">
+                        ${index}: <strong>${safeExecutorName}</strong>
+                        ${statusText} <strong>${safeTaskName}</strong> task
+                    </li>`;
+            },
+
+            getTaskStatusText: function(status) {
+                switch (status) {
+                    case 0: return 'will do';
+                    case 1: return 'is working on';
+                    case 2: return 'has completed';
+                    default: return 'is assigned to';
+                }
+            },
+
+            openEmployeesModal: async function(projectId, projectManager) {
+                try {
+                    const modal = new bootstrap.Modal(document.getElementById('projectsEmployeesModal'));
+                    $('#projectsEmployeesModal').data('projectId', projectId);
+
+                    this.renderEmployeesModal(projectManager);
+                    await this.refreshEmployeesData(projectId);
+                    modal.show();
+                } catch (error) {
+                    console.error('Error opening employees modal:', error);
+                    alert('Error loading project employees');
+                }
+            },
+
+            renderEmployeesModal: function(projectManager) {
+                const modalTitle = $('#projectsEmployeesModalLabel');
+                const projectManagerItem = $('#projectManagerItem');
+
+                modalTitle.text(`Project Team`);
+
+                if (projectManager) {
+                    const managerName = `${projectManager.firstName} ${projectManager.lastName}`;
+                    projectManagerItem.text(SafeRenderer.escapeHtml(managerName));
+                } else {
+                    projectManagerItem.text('No manager assigned');
+                }
+            },
+
+            refreshEmployeesData: async function(projectId) {
+                try {
+                    const [currentProject, availableEmployees] = await Promise.all([
+                        $.ajax({
+                            url: `${ProjectsConfig.urls.getProjectById}/${projectId}`,
+                            method: 'GET',
+                            dataType: 'json'
+                        }),
+                        $.ajax({
+                            url: `${ProjectsConfig.urls.getAvailableEmployees}/${projectId}`,
+                            method: 'GET',
+                            dataType: 'json'
+                        })
+                    ]);
+
+                    this.renderCurrentEmployees(currentProject.employees);
+                    this.renderAvailableEmployees(availableEmployees);
+                } catch (error) {
+                    console.error('Error refreshing employees data:', error);
+                }
+            },
+
+            renderCurrentEmployees: function(employees) {
+                const list = $('#employeesList').empty();
+                const removeSelect = $('#removeEmployeeFromProjInput').empty()
+                    .append(`<option value="" disabled selected>Select employee to remove...</option>`);
+
+                if (!employees || employees.length === 0) {
+                    list.append('<li class="list-group-item text-muted">No employees on this project yet</li>');
+                    $('#removingEmployeeForm').hide();
+                } else {
+                    $('#removingEmployeeForm').show();
+                    employees.forEach(emp => {
+                        const employeeName = SafeRenderer.escapeHtml(`${emp.firstName} ${emp.lastName}`);
+                        list.append(`<li class="list-group-item">${employeeName}</li>`);
+                        removeSelect.append(`<option value="${emp.id}">${employeeName}</option>`);
+                    });
+                }
+            },
+
+            renderAvailableEmployees: function(employees) {
+                const addSelect = $('#addEmployeeToProjInput').empty()
+                    .append(`<option value="" disabled selected>Select employee to add...</option>`);
+
+                if (!employees || employees.length === 0) {
+                    $('#addingEmployeeForm').hide();
+                } else {
+                    $('#addingEmployeeForm').show();
+                    employees.forEach(emp => {
+                        const employeeName = SafeRenderer.escapeHtml(`${emp.firstName} ${emp.lastName}`);
+                        addSelect.append(`<option value="${emp.id}">${employeeName}</option>`);
+                    });
+                }
+            },
+
+            openDeleteModal: function(projectId, projectName) {
+                $('#projectDeleteModal').data('projectId', projectId);
+                $('#projectDeleteModal').data('projectName', projectName);
+
+                const safeProjectName = SafeRenderer.escapeHtml(projectName);
+                $('#projectDeleteConfirmationText').text(`Are you sure you want to delete the "${safeProjectName}" project?`);
+
+                $('#confirmProjectDeleteBtn').prop('disabled', false).html('Delete Project');
+
+                const modal = new bootstrap.Modal(document.getElementById('projectDeleteModal'));
+                modal.show();
+            }
+        };
+
+        const ProjectActions = {
+            deleteProject: function(projectId) {
+                const $btn = $('#confirmProjectDeleteBtn');
+                const originalText = $btn.html();
+
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
+
+                $.ajax({
+                    url: `${ProjectsConfig.urls.deleteProject}/${projectId}`,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (response) {
+                        dataTable.draw();
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('projectDeleteModal'));
+                        modal.hide();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Delete project error:', error, xhr);
+                        alert('Error deleting project. Please try again.');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('projectDeleteModal'));
+                        modal.hide();
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            },
+
+            addEmployee: async function(projectId, employeeId) {
+                if (!employeeId) {
+                    alert('Please select an employee to add');
+                    return;
+                }
+
+                try {
+                    await $.ajax({
+                        url: `${ProjectsConfig.urls.addEmployeeToProject}/${projectId}/add/${employeeId}`,
+                        type: 'PATCH'
+                    });
+                    await ProjectModals.refreshEmployeesData(projectId);
+                } catch (error) {
+                    console.error('Error adding employee:', error);
+                    alert('Error adding employee to project');
+                }
+            },
+
+            removeEmployee: async function(projectId, employeeId) {
+                if (!employeeId) {
+                    alert('Please select an employee to remove');
+                    return;
+                }
+
+                try {
+                    await $.ajax({
+                        url: `${ProjectsConfig.urls.removeEmployeeFromProject}/${projectId}/remove/${employeeId}`,
+                        type: 'PATCH'
+                    });
+                    await ProjectModals.refreshEmployeesData(projectId);
+                } catch (error) {
+                    console.error('Error removing employee:', error);
+                    alert('Error removing employee from project');
+                }
+            }
+        };
+
+        const SafeRenderer = {
+            escapeHtml: function(unsafe) {
+                if (unsafe == null) return '';
+                return String(unsafe)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            },
+
+            renderIdColumn: function(id, detailsUrl) {
+                const safeId = this.escapeHtml(id);
+                return `<a href='${detailsUrl}/${safeId}' class='dt-a-link'>${safeId}</a>`;
+            },
+
+            renderNameColumn: function(id, name, userRole, managerRole, detailsUrl) {
+                const safeId = this.escapeHtml(id);
+                const safeName = this.escapeHtml(name || '');
+
+                if (userRole >= managerRole) {
+                    return `<a href='${detailsUrl}/${safeId}' class='dt-a-link'>${safeName}</a>`;
+                }
+                return `<p><strong>${safeName}</strong></p>`;
+            },
+
+            renderDateColumn: function(dateString) {
+                if (!dateString) return '<span class="text-muted">Not set</span>';
+
+                const formattedDate = this.formatDate(dateString);
+                const safeDate = this.escapeHtml(formattedDate);
+                return `<span class="text-muted"><strong>${safeDate}</strong></span>`;
+            },
+
+            formatDate: function(dateString) {
+                try {
+                    const parsedDate = new Date(dateString);
+                    if (isNaN(parsedDate.getTime())) return 'Invalid date';
+
+                    const day = ('0' + parsedDate.getDate()).slice(-2);
+                    const month = ('0' + (parsedDate.getMonth() + 1)).slice(-2);
+                    const year = parsedDate.getFullYear();
+
+                    return `${day}-${month}-${year}`;
+                } catch (error) {
+                    return 'Invalid date';
+                }
+            },
+
+            renderPriorityColumn: function(priority) {
+                const safePriority = this.escapeHtml(priority || 'Not set');
+                return `<span><strong>${safePriority}</strong></span>`;
+            },
+
+            renderCustomerColumn: function(customerName) {
+                const safeCustomerName = this.escapeHtml(customerName || 'No customer');
+                return `<span>${safeCustomerName}</span>`;
+            },
+
+            renderManagerColumn: function(firstName, lastName) {
+                const fullName = `${firstName || ''} ${lastName || ''}`.trim();
+                const safeFullName = this.escapeHtml(fullName || 'Not assigned');
+                return `<span>${safeFullName}</span>`;
+            },
+
+            renderOptionsButtons: function(project, userRole, managerRole, detailsUrl) {
+                const safeId = this.escapeHtml(project.id);
+                const safeName = this.escapeHtml(project.name || '');
+                const canManage = userRole >= managerRole;
+
+                const editButton = canManage ? `
+                    <a class='btn btn-sm dt-btn-edit'
+                       href='${detailsUrl}/${safeId}'
+                       data-bs-toggle='tooltip'
+                       title='Edit project'>
+                        <img src="/icons/edit.svg" alt="edit" />
+                    </a>` : '';
+
+                const tasksButton = `
+                    <a id="projectTasksBtn" class='btn btn-sm btn-info'
+                       href='#'
+                       data-id='${safeId}'
+                       data-bs-toggle='tooltip'
+                       title='View project tasks'>
+                        <img src="/icons/project_tasks.svg" alt="tasks" />
+                    </a>`;
+
+                const employeesButton = `
+                    <a id="projectEmployeesBtn" class='btn btn-sm btn-info'
+                       href='#'
+                       data-id='${safeId}'
+                       data-project-manager='${encodeURIComponent(JSON.stringify(project.projectManager))}'
+                       data-bs-toggle='tooltip'
+                       title='View project employees'>
+                        <img src="/icons/project_employees.svg" alt="projects" />
+                    </a>`;
+
+                const deleteButton = canManage ? `
+                    <a id="deleteProjectBtn" class='btn btn-sm btn-danger'
+                       href='#'
+                       data-id='${safeId}'
+                       data-name='${safeName}'
+                       data-bs-toggle='tooltip'
+                       title='Delete project'>
+                        <img src="/icons/delete.svg" alt="delete" />
+                    </a>` : '';
+
+                return `
+                    <div class='d-flex justify-content-center align-items-center gap-3'>
+                        ${editButton}
+                        ${tasksButton}
+                        ${employeesButton}
+                        ${deleteButton}
+                    </div>`;
+            }
+        };
+
+        $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+            console.error('AJAX Error:', {
+                url: ajaxSettings.url,
+                status: jqXHR.status,
+                error: thrownError
+            });
+        });
+    </script>
+}
