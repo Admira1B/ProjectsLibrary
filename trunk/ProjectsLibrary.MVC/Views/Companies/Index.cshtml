@@ -69,43 +69,33 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addCompanyForm"
-                          asp-action="Add"
-                          asp-controller="Companies"
-                          method="post"
-                          novalidate>
-                        @Html.AntiForgeryToken()
-                        <div class="mt-0 mb-2 pb-1">
-                            <div class="input-group mb-3">
-                                <label asp-for="CompanyAddDto.Name" class="input-group-text" for="addingCompanyNameInput">
-                                    Company Name
-                                </label>
-                                <input id="addingCompanyNameInput"
-                                       asp-for="CompanyAddDto.Name"
-                                       class="form-control"
-                                       placeholder="Enter company name..."
-                                       aria-required="true"
-                                       aria-describedby="nameValidation" />
-                                <span asp-validation-for="CompanyAddDto.Name"
-                                      class="invalid-feedback d-block"
-                                      id="nameValidation"
-                                      role="alert"></span>
-                            </div>
+                    <div class="pb-1">
+                        <div class="input-group mb-3">
+                            <label for="addingCompanyNameInput" class="input-group-text">
+                                Company Name
+                            </label>
+                            <input id="addingCompanyNameInput"
+                                   class="form-control"
+                                   placeholder="Enter company name..."
+                                   aria-required="true"
+                                   aria-describedby="nameValidation" />
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <button type="button"
-                                    class="btn btn-danger"
-                                    data-bs-dismiss="modal"
-                                    aria-label="Cancel adding company">
-                                Cancel
-                            </button>
-                            <button type="submit"
-                                    class="btn btn-primary dt-btn-edit"
-                                    aria-label="Submit company form">
-                                Add Company
-                            </button>
-                        </div>
-                    </form>
+                        <div class="invalid-feedback d-block text-center" id="nameValidation" role="alert"></div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                                aria-label="Cancel adding company">
+                            Cancel
+                        </button>
+                        <button type="button"
+                                class="btn btn-primary"
+                                id="confirmAddBtn"
+                                aria-label="Confirm adding company">
+                            Add Company
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -157,8 +147,7 @@
     <script type="text/javascript">
         const CompaniesConfig = {
             urls: {
-                getCompanies: '@Url.Action("Get", "Companies")',
-                deleteCompany: '@Url.Action("Delete", "Companies")',
+                apiUrl: '/Api/Companies',
                 companyDetails: '@Url.Action("Details", "Companies")'
             },
             constants: {
@@ -195,19 +184,25 @@
                         zeroRecords: 'No matching companies found'
                     },
                     ajax: {
-                      url: CompaniesConfig.urls.getCompanies,
-                      type: 'POST',
+                      url: `${CompaniesConfig.urls.apiUrl}`,
+                      type: 'GET',
                       dataType: 'json',
-                      data: function (d) {
-                        var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
-                        d.sortColumn = d.columns[order.column].name;
-                        d.sortDirection = order.dir;
-                        d.searchingValue = d.search.value;
-                        d.searchableFieldsNames = ['name'];
-                      },
-                      error: function(xhr, error, thrown) {
-                          console.error('DataTables AJAX error:', error);
-                      }
+                        data: function (d) {
+                            var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
+
+                            return {
+                                draw: d.draw,
+                                start: d.start,
+                                length: d.length,
+                                searchValue: d.search.value,
+                                sortColumn: d.columns[order.column].name,
+                                sortDirection: order.dir,
+                                searchableFieldsNames: ['name']
+                            };
+                        },
+                        error: function(xhr, error, thrown) {
+                            console.error('DataTables AJAX error:', error);
+                        }
                     },
                     columns: [
                         {
@@ -274,15 +269,24 @@
                 CompanyModals.openAddModal();
             });
 
-            $('#addCompanyForm').on('submit', function(e) {
-                if (!this.checkValidity()) {
-                    e.preventDefault();
-                    e.stopPropagation();
+            $('#confirmAddBtn').on('click', function() {
+                const companyName = $('#addingCompanyNameInput').val().trim();
+
+                if (!companyName) {
+                    $('#addingCompanyNameInput').addClass('is-invalid');
+                    $('#nameValidation').text('Company name is required.');
+                    return;
                 }
-                $(this).addClass('was-validated');
+
+                $('#addingCompanyNameInput').removeClass('is-invalid');
+                $('#nameValidation').text('');
+
+                CompanyActions.addCompany({
+                    name: companyName
+                });
             });
 
-            $('.btn-danger[data-bs-dismiss="modal"]').on('click', function() {
+            $('.btn-secondary[data-bs-dismiss="modal"]').on('click', function() {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('addCompanyModal'));
                 modal.hide();
             });
@@ -311,6 +315,8 @@
             openAddModal: function() {
                 $('#addingCompanyNameInput').val('').focus();
                 $('#addCompanyForm').removeClass('was-validated');
+                $('#addingCompanyNameInput').removeClass('is-invalid');
+                $('#nameValidation').text('');
 
                 const modal = new bootstrap.Modal(document.getElementById('addCompanyModal'));
                 modal.show();
@@ -331,6 +337,34 @@
         };
 
         const CompanyActions = {
+            addCompany: function(companyData) {
+                const $btn = $('#confirmAddBtn');
+                const originalText = $btn.html();
+
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...');
+
+                $.ajax({
+                    url: CompaniesConfig.urls.apiUrl,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(companyData),
+                    success: function (response) {
+                        if (response.success) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('addCompanyModal'));
+                            modal.hide();
+                            dataTable.draw();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Add company error:', error, xhr);
+                        alert('Error adding company. Please try again.');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            },
+
             deleteCompany: function(companyId) {
                 const $btn = $('#confirmDeleteBtn');
                 const originalText = $btn.html();
@@ -338,7 +372,7 @@
                 $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
 
                 $.ajax({
-                    url: `${CompaniesConfig.urls.deleteCompany}/${companyId}`,
+                    url: `${CompaniesConfig.urls.apiUrl}/${companyId}`,
                     type: 'DELETE',
                     dataType: 'json',
                     success: function (response) {
