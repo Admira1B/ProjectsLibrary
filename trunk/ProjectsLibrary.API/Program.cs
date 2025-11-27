@@ -8,8 +8,7 @@ using ProjectsLibrary.Mapping;
 var builder = WebApplication.CreateBuilder(args);
 
 // Adding DbContext
-builder.Services.AddDbContext<ProjectsLibraryDbContext>(options =>
-{
+builder.Services.AddDbContext<ProjectsLibraryDbContext>(options => {
     options.UseSqlServer(connectionString: builder.Configuration.GetConnectionString("DefaultConnectionAPI"));
 });
 // Adding ProjectsLibrary.Services and ProjectsLibrary.DAL Dependencies
@@ -32,8 +31,7 @@ var app = builder.Build();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseStatusCodePages();
 
-if (app.Environment.IsDevelopment())
-{
+if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
 }

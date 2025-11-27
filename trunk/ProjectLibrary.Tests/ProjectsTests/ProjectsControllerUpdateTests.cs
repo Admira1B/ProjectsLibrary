@@ -3,13 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectsLibrary.DTOs.Project;
 using ProjectsLibrary.Domain.Models.Entities;
 
-namespace ProjectLibrary.Tests.ProjectsTests
-{
-    public class ProjectsControllerUpdateTests : ProjectsControllerTests
-    {
+namespace ProjectLibrary.Tests.ProjectsTests {
+    public class ProjectsControllerUpdateTests : ProjectsControllerTests {
         [Fact]
-        public async Task Update_WithValidData_RedirectsToIndex()
-        {
+        public async Task Update_WithValidData_RedirectsToIndex() {
             var id = 1;
             var projectUpdateDto = new ProjectUpdateDto { Name = "Updated Project" };
             var projectEntity = new Project { Id = id, Name = "Updated Project" };

@@ -1,9 +1,7 @@
 ﻿using ProjectsLibrary.Domain.Models.Entities;
 
-namespace ProjectsLibrary.Domain.Contracts.Repositories
-{
-    public interface IEmployeeRepository
-    {
+namespace ProjectsLibrary.Domain.Contracts.Repositories {
+    public interface IEmployeeRepository {
         Task Add(Employee employee);
         Task Delete(int id);
         Task<bool> ExistsAsync(int id);

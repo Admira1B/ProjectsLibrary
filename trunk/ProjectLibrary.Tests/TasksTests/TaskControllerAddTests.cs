@@ -3,20 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectsLibrary.DTOs.Task;
 using ProjectsLibrary.Domain.Models.Entities;
 
-namespace ProjectLibrary.Tests.TasksTests
-{
-    public class TaskControllerAddTests : TasksControllerTests
-    {
+namespace ProjectLibrary.Tests.TasksTests {
+    public class TaskControllerAddTests : TasksControllerTests {
         [Fact]
-        public async Task Add_WithValidDto_ReturnsRedirectToActionResult()
-        {
-            var taskAddDto = new TaskAddDto
-            {
+        public async Task Add_WithValidDto_ReturnsRedirectToActionResult() {
+            var taskAddDto = new TaskAddDto {
                 Name = "New Task",
             };
 
-            var task = new TaskPL
-            {
+            var task = new TaskPL {
                 Name = "New Task",
             };
 

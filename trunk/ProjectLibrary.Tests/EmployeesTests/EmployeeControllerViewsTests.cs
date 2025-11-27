@@ -3,17 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using ProjectsLibrary.MVC.Models.Employee;
 
-namespace ProjectLibrary.Tests.EmployeesTests
-{
-    public class EmployeeControllerViewsTests : EmployeeControllerTests
-    {
+namespace ProjectLibrary.Tests.EmployeesTests {
+    public class EmployeeControllerViewsTests : EmployeeControllerTests {
         [Fact]
-        public async Task Index_WithRequiredRole_ReturnsView()
-        {
+        public async Task Index_WithRequiredRole_ReturnsView() {
             var user = MockClaimHelper.BuildSupervisorClaim();
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
 
@@ -27,12 +23,10 @@ namespace ProjectLibrary.Tests.EmployeesTests
         }
 
         [Fact]
-        public async Task Add_WithRequiredRole_ReturnsView() 
-        {
+        public async Task Add_WithRequiredRole_ReturnsView() {
             var user = MockClaimHelper.BuildSupervisorClaim();
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
 
@@ -46,12 +40,10 @@ namespace ProjectLibrary.Tests.EmployeesTests
         }
 
         [Fact]
-        public async Task Details_WithRequiredRole_ReturnsView() 
-        {
+        public async Task Details_WithRequiredRole_ReturnsView() {
             var user = MockClaimHelper.BuildSupervisorClaim();
 
-            _controller.ControllerContext = new ControllerContext() 
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
 

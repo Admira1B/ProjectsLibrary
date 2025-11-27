@@ -9,12 +9,9 @@ using ProjectsLibrary.Domain.Models.Enums;
 using ProjectsLibrary.Domain.Exceptions;
 using System.Text;
 
-namespace ProjectsLibrary.CompositionRoot
-{
-    public static class JwtServiceCollectionExtensions
-    {
-        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration) 
-        {
+namespace ProjectsLibrary.CompositionRoot {
+    public static class JwtServiceCollectionExtensions {
+        public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration) {
             var jwtOptions = configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
 
             if (jwtOptions == null || string.IsNullOrWhiteSpace(jwtOptions.SecretKey))
@@ -23,10 +20,8 @@ namespace ProjectsLibrary.CompositionRoot
                     details: "Cannot add jwt authentication, because jwt options or secret key are missing");
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, (options) =>
-                    {
-                        options.TokenValidationParameters = new TokenValidationParameters
-                        {
+                    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, (options) => {
+                        options.TokenValidationParameters = new TokenValidationParameters {
                             ValidateIssuer = false,
                             ValidateAudience = false,
                             ValidateActor = false,
@@ -35,10 +30,8 @@ namespace ProjectsLibrary.CompositionRoot
                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey))
                         };
 
-                        options.Events = new JwtBearerEvents 
-                        {
-                            OnMessageReceived = context => 
-                            {
+                        options.Events = new JwtBearerEvents {
+                            OnMessageReceived = context => {
                                 context.Token = context.Request.Cookies["auth-t"];
 
                                 return Task.CompletedTask;
@@ -49,12 +42,10 @@ namespace ProjectsLibrary.CompositionRoot
             return services;
         }
 
-        public static IServiceCollection AddJwtAuthorization(this IServiceCollection services) 
-        {
+        public static IServiceCollection AddJwtAuthorization(this IServiceCollection services) {
             services.AddSingleton<IAuthorizationHandler, RoleAuthorizationHandler>();
 
-            services.AddAuthorization(options =>
-            {
+            services.AddAuthorization(options => {
                 options.AddPolicy(PolicyLevelName.AdminPolicy, policy =>
                     policy.Requirements.Add(new RoleAuthorizationRequirement(EmployeeRole.Admin)));
 

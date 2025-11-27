@@ -5,14 +5,11 @@ using ProjectsLibrary.MVC.Models.Home;
 using ProjectsLibrary.Domain.Exceptions;
 using ProjectsLibrary.Domain.Models.Entities;
 
-namespace ProjectLibrary.Tests.HomeTests 
-{
-    public class HomeControllerRegisterTests : HomeControllerTests 
-    {
+namespace ProjectLibrary.Tests.HomeTests {
+    public class HomeControllerRegisterTests : HomeControllerTests {
         [Fact]
         public async Task Register_ValidEmployee_RedirectsToLogin() {
-            var employeeDto = new EmployeeAddDto()
-            {
+            var employeeDto = new EmployeeAddDto() {
                 Email = "testemail@test.te",
                 FirstName = "Jhon",
                 LastName = "Doe",
@@ -25,7 +22,7 @@ namespace ProjectLibrary.Tests.HomeTests
             _employeeService.Setup(s => s.RegisterAsync(employeeEntity, employeeDto.Password))
                            .Returns(Task.CompletedTask);
 
-            var result = await _controller.Register(employeeDto); 
+            var result = await _controller.Register(employeeDto);
 
             var redirectResult = Assert.IsType<RedirectToActionResult>(result);
 
@@ -36,10 +33,8 @@ namespace ProjectLibrary.Tests.HomeTests
         }
 
         [Fact]
-        public async Task Register_ExistingEmployee_ReturnsViewWithError() 
-        {
-            var employeeDto = new EmployeeAddDto
-            {
+        public async Task Register_ExistingEmployee_ReturnsViewWithError() {
+            var employeeDto = new EmployeeAddDto {
                 Email = "testemail@test.te",
                 FirstName = "Jhon",
                 LastName = "Doe",

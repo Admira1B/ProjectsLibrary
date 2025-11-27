@@ -3,13 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectsLibrary.DTOs.Employee;
 using ProjectsLibrary.Domain.Models.Entities;
 
-namespace ProjectLibrary.Tests.EmployeesTests
-{
-    public class EmployeeControllerUpdateTests : EmployeeControllerTests
-    {
+namespace ProjectLibrary.Tests.EmployeesTests {
+    public class EmployeeControllerUpdateTests : EmployeeControllerTests {
         [Fact]
-        public async Task Update_WithValidData_RedirectsToIndex()
-        {
+        public async Task Update_WithValidData_RedirectsToIndex() {
             var id = 1;
             var employeeUpdateDto = new EmployeeUpdateDto { FirstName = "John", LastName = "Updated", Email = "john@test.com", Password = "Welcome" };
             var employeeEntity = new Employee { Id = id, FirstName = "John", LastName = "Updated", Email = "john@test.com" };

@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProjectsLibrary.DTOs.Employee
-{
-    public class EmployeeUpdateDto
-    {
+namespace ProjectsLibrary.DTOs.Employee {
+    public class EmployeeUpdateDto {
         [Required(ErrorMessage = "Employee`s first name field is required.")]
         [StringLength(40, MinimumLength = 2)]
         public required string FirstName { get; set; } = string.Empty;

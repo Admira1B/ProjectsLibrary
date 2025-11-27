@@ -1,9 +1,7 @@
 ﻿using ProjectsLibrary.Domain.Models.Enums;
 
-namespace ProjectsLibrary.Domain.Models.Entities
-{
-    public class TaskPL
-    {
+namespace ProjectsLibrary.Domain.Models.Entities {
+    public class TaskPL {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public TaskPLStatus Status { get; set; }

@@ -2,10 +2,8 @@
 using ProjectsLibrary.DTOs.Employee;
 using ProjectsLibrary.DTOs.Task;
 
-namespace ProjectsLibrary.DTOs.Project
-{
-    public class ProjectReadDto
-    {
+namespace ProjectsLibrary.DTOs.Project {
+    public class ProjectReadDto {
         public int Id { get; set; }
         public required string Name { get; set; } = string.Empty;
         public int Priority { get; set; }

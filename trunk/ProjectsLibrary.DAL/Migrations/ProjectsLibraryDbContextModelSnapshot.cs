@@ -8,13 +8,10 @@ using ProjectsLibrary.DAL;
 
 #nullable disable
 
-namespace ProjectsLibrary.DAL.Migrations
-{
+namespace ProjectsLibrary.DAL.Migrations {
     [DbContext(typeof(ProjectsLibraryDbContext))]
-    partial class ProjectsLibraryDbContextModelSnapshot : ModelSnapshot
-    {
-        protected override void BuildModel(ModelBuilder modelBuilder)
-        {
+    partial class ProjectsLibraryDbContextModelSnapshot : ModelSnapshot {
+        protected override void BuildModel(ModelBuilder modelBuilder) {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.9")
@@ -22,223 +19,212 @@ namespace ProjectsLibrary.DAL.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("EmployeeProject", b =>
-                {
-                    b.Property<int>("EmployeesId")
-                        .HasColumnType("int");
+            modelBuilder.Entity("EmployeeProject", b => {
+                b.Property<int>("EmployeesId")
+                    .HasColumnType("int");
 
-                    b.Property<int>("WorkingProjectsId")
-                        .HasColumnType("int");
+                b.Property<int>("WorkingProjectsId")
+                    .HasColumnType("int");
 
-                    b.HasKey("EmployeesId", "WorkingProjectsId");
+                b.HasKey("EmployeesId", "WorkingProjectsId");
 
-                    b.HasIndex("WorkingProjectsId");
+                b.HasIndex("WorkingProjectsId");
 
-                    b.ToTable("EmployeeProject");
-                });
+                b.ToTable("EmployeeProject");
+            });
 
-            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Company", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Company", b => {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Companies");
-                });
+                b.ToTable("Companies");
+            });
 
-            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Employee", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Employee", b => {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Email")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("FirstName")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("LastName")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("PasswordHash")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
+                b.Property<int>("Role")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Employees");
-                });
+                b.ToTable("Employees");
+            });
 
-            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Project", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Project", b => {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("int");
+                b.Property<int>("CompanyId")
+                    .HasColumnType("int");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("EndDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
+                b.Property<int>("Priority")
+                    .HasColumnType("int");
 
-                    b.Property<int>("ProjectManagerId")
-                        .HasColumnType("int");
+                b.Property<int>("ProjectManagerId")
+                    .HasColumnType("int");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("StartDate")
+                    .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("CompanyId");
+                b.HasIndex("CompanyId");
 
-                    b.HasIndex("ProjectManagerId");
+                b.HasIndex("ProjectManagerId");
 
-                    b.ToTable("Projects");
-                });
+                b.ToTable("Projects");
+            });
 
-            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.TaskPL", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.TaskPL", b => {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Comment")
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("CreatorId")
-                        .HasColumnType("int");
+                b.Property<int>("CreatorId")
+                    .HasColumnType("int");
 
-                    b.Property<int>("ExecutorId")
-                        .HasColumnType("int");
+                b.Property<int>("ExecutorId")
+                    .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
+                b.Property<int>("ProjectId")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                b.Property<int>("Status")
+                    .HasColumnType("int");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("CreatorId");
+                b.HasIndex("CreatorId");
 
-                    b.HasIndex("ExecutorId");
+                b.HasIndex("ExecutorId");
 
-                    b.HasIndex("ProjectId");
+                b.HasIndex("ProjectId");
 
-                    b.ToTable("Tasks");
-                });
+                b.ToTable("Tasks");
+            });
 
-            modelBuilder.Entity("EmployeeProject", b =>
-                {
-                    b.HasOne("ProjectsLibrary.Domain.Models.Entities.Employee", null)
-                        .WithMany()
-                        .HasForeignKey("EmployeesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+            modelBuilder.Entity("EmployeeProject", b => {
+                b.HasOne("ProjectsLibrary.Domain.Models.Entities.Employee", null)
+                    .WithMany()
+                    .HasForeignKey("EmployeesId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
 
-                    b.HasOne("ProjectsLibrary.Domain.Models.Entities.Project", null)
-                        .WithMany()
-                        .HasForeignKey("WorkingProjectsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
+                b.HasOne("ProjectsLibrary.Domain.Models.Entities.Project", null)
+                    .WithMany()
+                    .HasForeignKey("WorkingProjectsId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+            });
 
-            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Project", b =>
-                {
-                    b.HasOne("ProjectsLibrary.Domain.Models.Entities.Company", "Company")
-                        .WithMany("Projects")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Project", b => {
+                b.HasOne("ProjectsLibrary.Domain.Models.Entities.Company", "Company")
+                    .WithMany("Projects")
+                    .HasForeignKey("CompanyId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.HasOne("ProjectsLibrary.Domain.Models.Entities.Employee", "ProjectManager")
-                        .WithMany("ManagedProjects")
-                        .HasForeignKey("ProjectManagerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                b.HasOne("ProjectsLibrary.Domain.Models.Entities.Employee", "ProjectManager")
+                    .WithMany("ManagedProjects")
+                    .HasForeignKey("ProjectManagerId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.Navigation("Company");
+                b.Navigation("Company");
 
-                    b.Navigation("ProjectManager");
-                });
+                b.Navigation("ProjectManager");
+            });
 
-            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.TaskPL", b =>
-                {
-                    b.HasOne("ProjectsLibrary.Domain.Models.Entities.Employee", "Creator")
-                        .WithMany("CreatedTasks")
-                        .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.TaskPL", b => {
+                b.HasOne("ProjectsLibrary.Domain.Models.Entities.Employee", "Creator")
+                    .WithMany("CreatedTasks")
+                    .HasForeignKey("CreatorId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.HasOne("ProjectsLibrary.Domain.Models.Entities.Employee", "Executor")
-                        .WithMany("ExecutingTasks")
-                        .HasForeignKey("ExecutorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                b.HasOne("ProjectsLibrary.Domain.Models.Entities.Employee", "Executor")
+                    .WithMany("ExecutingTasks")
+                    .HasForeignKey("ExecutorId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.HasOne("ProjectsLibrary.Domain.Models.Entities.Project", "Project")
-                        .WithMany("Tasks")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                b.HasOne("ProjectsLibrary.Domain.Models.Entities.Project", "Project")
+                    .WithMany("Tasks")
+                    .HasForeignKey("ProjectId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
 
-                    b.Navigation("Creator");
+                b.Navigation("Creator");
 
-                    b.Navigation("Executor");
+                b.Navigation("Executor");
 
-                    b.Navigation("Project");
-                });
+                b.Navigation("Project");
+            });
 
-            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Company", b =>
-                {
-                    b.Navigation("Projects");
-                });
+            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Company", b => {
+                b.Navigation("Projects");
+            });
 
-            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Employee", b =>
-                {
-                    b.Navigation("CreatedTasks");
+            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Employee", b => {
+                b.Navigation("CreatedTasks");
 
-                    b.Navigation("ExecutingTasks");
+                b.Navigation("ExecutingTasks");
 
-                    b.Navigation("ManagedProjects");
-                });
+                b.Navigation("ManagedProjects");
+            });
 
-            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Project", b =>
-                {
-                    b.Navigation("Tasks");
-                });
+            modelBuilder.Entity("ProjectsLibrary.Domain.Models.Entities.Project", b => {
+                b.Navigation("Tasks");
+            });
 #pragma warning restore 612, 618
         }
     }

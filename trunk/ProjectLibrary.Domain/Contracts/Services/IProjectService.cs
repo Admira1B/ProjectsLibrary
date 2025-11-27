@@ -2,10 +2,8 @@
 using ProjectsLibrary.Domain.Models.RequestModels;
 using ProjectsLibrary.Domain.Models.Results;
 
-namespace ProjectsLibrary.Domain.Contracts.Services
-{
-    public interface IProjectService
-    {
+namespace ProjectsLibrary.Domain.Contracts.Services {
+    public interface IProjectService {
         Task<List<Project>> GetAsync();
         Task<List<Project>> GetDataOnlyAsync();
         Task<PagedResult<Project>> GetPaginatedAsync(FilterParams filterParams, SortParams sortParams, PageParams pageParams, int? employeeId = null);

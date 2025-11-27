@@ -10,8 +10,7 @@ using ProjectsLibrary.MVC.ViewModelBuilders.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 // Adding DbContext
-builder.Services.AddDbContext<ProjectsLibraryDbContext>(options =>
-{
+builder.Services.AddDbContext<ProjectsLibraryDbContext>(options => {
     options.UseSqlServer(connectionString: builder.Configuration.GetConnectionString("DefaultConnectionMVC"));
 });
 
@@ -46,18 +45,15 @@ var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
-if (!app.Environment.IsDevelopment())
-{
+if (!app.Environment.IsDevelopment()) {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-app.UseStatusCodePages(context =>
-{
+app.UseStatusCodePages(context => {
     var response = context.HttpContext.Response;
 
-    if (response.StatusCode == 401)
-    {
+    if (response.StatusCode == 401) {
         response.Redirect("/Home/Login");
     }
 

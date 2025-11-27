@@ -9,18 +9,15 @@ using ProjectsLibrary.Domain.Models.RequestModels;
 using ProjectsLibrary.Domain.Models.Results;
 using ProjectsLibrary.DTOs.Employee;
 
-namespace ProjectsLibrary.API.Controllers
-{
+namespace ProjectsLibrary.API.Controllers {
     [ApiController]
     [Route("api/[controller]")]
-    public class EmployeesController(IEmployeeService service, IMapper mapper) : ControllerBase
-    {
+    public class EmployeesController(IEmployeeService service, IMapper mapper) : ControllerBase {
         private readonly IEmployeeService _service = service;
         private readonly IMapper _mapper = mapper;
 
         [HttpPost("register")]
-        public async Task<ActionResult> Register([FromBody] EmployeeAddDto employeeDto)
-        {
+        public async Task<ActionResult> Register([FromBody] EmployeeAddDto employeeDto) {
             var employee = _mapper.Map<Employee>(employeeDto);
 
             await _service.RegisterAsync(employee, employeeDto.Password);
@@ -29,8 +26,7 @@ namespace ProjectsLibrary.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult> Login(EmployeeLoginDto loginDto)
-        {
+        public async Task<ActionResult> Login(EmployeeLoginDto loginDto) {
             var token = await _service.LoginAsync(loginDto.Email, loginDto.Password);
 
             AppendTokenToCookies(token);
@@ -40,8 +36,7 @@ namespace ProjectsLibrary.API.Controllers
 
         [Authorize(Policy = PolicyLevelName.BaseLevel)]
         [HttpGet]
-        public async Task<ActionResult<PagedResult<EmployeeReadDto>>> Get([FromQuery]GetPagedModel model)
-        {
+        public async Task<ActionResult<PagedResult<EmployeeReadDto>>> Get([FromQuery] GetPagedModel model) {
             var builtParams = ControllersExtensions.BuildGetMethodModelParams(model);
 
             var employeesPaged = await _service.GetPaginatedAsync(
@@ -51,8 +46,7 @@ namespace ProjectsLibrary.API.Controllers
 
             var employeesDtos = _mapper.Map<List<EmployeeReadDto>>(employeesPaged.Datas);
 
-            var result = new PagedResult<EmployeeReadDto>()
-            {
+            var result = new PagedResult<EmployeeReadDto>() {
                 Datas = employeesDtos,
                 FilteredRecords = employeesPaged.FilteredRecords,
                 TotalRecords = employeesPaged.TotalRecords
@@ -63,8 +57,7 @@ namespace ProjectsLibrary.API.Controllers
 
         [Authorize(Policy = PolicyLevelName.BaseLevel)]
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<EmployeeReadDto>> GetById([FromRoute] int id)
-        {
+        public async Task<ActionResult<EmployeeReadDto>> GetById([FromRoute] int id) {
             var employee = await _service.GetByIdNoTrackingAsync(id);
             var employeeDto = _mapper.Map<EmployeeReadDto>(employee);
             return Ok(employeeDto);
@@ -72,8 +65,7 @@ namespace ProjectsLibrary.API.Controllers
 
         [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
         [HttpPost]
-        public async Task<ActionResult> Add([FromBody] EmployeeAddDto employeeDto)
-        {
+        public async Task<ActionResult> Add([FromBody] EmployeeAddDto employeeDto) {
             var employee = _mapper.Map<Employee>(employeeDto);
             await _service.AddAsync(employee);
             return CreatedAtAction(nameof(GetById), new { id = employee.Id }, _mapper.Map<EmployeeReadDto>(employee));
@@ -81,8 +73,7 @@ namespace ProjectsLibrary.API.Controllers
 
         [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Update([FromRoute] int id, [FromBody] EmployeeUpdateDto employeeDto)
-        {
+        public async Task<ActionResult> Update([FromRoute] int id, [FromBody] EmployeeUpdateDto employeeDto) {
             var employee = _mapper.Map<Employee>(employeeDto);
             employee.Id = id;
             await _service.UpdateAsync(employee);
@@ -91,30 +82,26 @@ namespace ProjectsLibrary.API.Controllers
 
         [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete([FromRoute]int id)
-        {
+        public async Task<ActionResult> Delete([FromRoute] int id) {
             await _service.DeleteAsync(id);
             return NoContent();
         }
 
         [Authorize(Policy = PolicyLevelName.ManagmentLevel)]
         [HttpPatch("{employeeId:int}/assign/{taskId:int}")]
-        public async Task<ActionResult> AssignTaskToEmployee([FromRoute]int employeeId, [FromRoute]int taskId) 
-        {
+        public async Task<ActionResult> AssignTaskToEmployee([FromRoute] int employeeId, [FromRoute] int taskId) {
             await _service.AssignTaskToEmployee(employeeId, taskId);
             return NoContent();
         }
 
         [Authorize(Policy = PolicyLevelName.ManagmentLevel)]
         [HttpPatch("{employeeId:int}/unassign/{taskId:int}")]
-        public async Task<ActionResult> UnassignTaskFromEmployee([FromRoute] int employeeId, [FromRoute] int taskId)
-        {
+        public async Task<ActionResult> UnassignTaskFromEmployee([FromRoute] int employeeId, [FromRoute] int taskId) {
             await _service.UnassignTaskToEmployee(employeeId, taskId);
             return NoContent();
         }
 
-        private void AppendTokenToCookies(string token) 
-        {
+        private void AppendTokenToCookies(string token) {
             HttpContext.Response.Cookies.Append("auth-t", token);
         }
     }

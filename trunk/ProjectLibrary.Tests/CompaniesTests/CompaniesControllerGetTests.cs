@@ -5,15 +5,11 @@ using ProjectsLibrary.Domain.Models.Entities;
 using ProjectsLibrary.Domain.Models.Results;
 using ProjectsLibrary.Domain.Models.RequestModels;
 
-namespace ProjectLibrary.Tests.CompaniesTests
-{
-    public class CompaniesControllerGetTests : CompaniesControllerTests
-    {
+namespace ProjectLibrary.Tests.CompaniesTests {
+    public class CompaniesControllerGetTests : CompaniesControllerTests {
         [Fact]
-        public async Task Get_WithValidModel_ReturnsJsonResult()
-        {
-            var model = new GetPagedModel
-            {
+        public async Task Get_WithValidModel_ReturnsJsonResult() {
+            var model = new GetPagedModel {
                 Draw = 1,
                 Start = 0,
                 Length = 10,
@@ -29,8 +25,7 @@ namespace ProjectLibrary.Tests.CompaniesTests
                 new() { Id = 2, Name = "Test Company 2" }
             };
 
-            var pagedResult = new PagedResult<Company>
-            {
+            var pagedResult = new PagedResult<Company> {
                 Datas = companies,
                 TotalRecords = 100,
                 FilteredRecords = 50

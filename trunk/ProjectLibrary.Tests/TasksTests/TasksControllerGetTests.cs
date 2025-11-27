@@ -6,15 +6,11 @@ using ProjectsLibrary.Domain.Models.Results;
 using ProjectsLibrary.Domain.Models.Entities;
 using ProjectsLibrary.Domain.Models.RequestModels;
 
-namespace ProjectLibrary.Tests.TasksTests
-{
-    public class TasksControllerGetTests : TasksControllerTests
-    {
+namespace ProjectLibrary.Tests.TasksTests {
+    public class TasksControllerGetTests : TasksControllerTests {
         [Fact]
-        public async Task Get_WithValidModel_ReturnsJsonResult()
-        {
-            var model = new GetPagedModel
-            {
+        public async Task Get_WithValidModel_ReturnsJsonResult() {
+            var model = new GetPagedModel {
                 Draw = 1,
                 Start = 0,
                 Length = 10,
@@ -26,8 +22,7 @@ namespace ProjectLibrary.Tests.TasksTests
 
             var user = MockClaimHelper.BuildManagerClaim();
 
-            _controller.ControllerContext = new ControllerContext
-            {
+            _controller.ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext { User = user }
             };
 
@@ -37,8 +32,7 @@ namespace ProjectLibrary.Tests.TasksTests
                 new() { Id = 2, Name = "Test Task 2" }
             };
 
-            var pagedResult = new PagedResult<TaskPL>
-            {
+            var pagedResult = new PagedResult<TaskPL> {
                 Datas = tasks,
                 TotalRecords = 100,
                 FilteredRecords = 50

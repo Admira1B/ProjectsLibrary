@@ -2,12 +2,9 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProjectsLibrary.Domain.Models.Entities;
 
-namespace ProjectsLibrary.DAL.Configurations
-{
-    public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
-    {
-        public void Configure(EntityTypeBuilder<Employee> builder)
-        {
+namespace ProjectsLibrary.DAL.Configurations {
+    public class EmployeeConfiguration : IEntityTypeConfiguration<Employee> {
+        public void Configure(EntityTypeBuilder<Employee> builder) {
             builder.HasKey(e => e.Id);
 
             builder.HasMany(e => e.CreatedTasks)

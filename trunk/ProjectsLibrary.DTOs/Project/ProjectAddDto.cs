@@ -1,10 +1,8 @@
 ﻿using ProjectsLibrary.DTOs.Project.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProjectsLibrary.DTOs.Project
-{
-    public class ProjectAddDto
-    {
+namespace ProjectsLibrary.DTOs.Project {
+    public class ProjectAddDto {
         [Required(ErrorMessage = "Project`s name field is required.")]
         [StringLength(25, MinimumLength = 3)]
         public required string Name { get; set; } = string.Empty;

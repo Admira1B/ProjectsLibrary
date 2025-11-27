@@ -5,12 +5,9 @@ using ProjectsLibrary.DTOs.Task;
 using ProjectsLibrary.DTOs.Company;
 using ProjectsLibrary.Domain.Models.Entities;
 
-namespace ProjectsLibrary.Mapping
-{
-    public class AutoMapperProfile : Profile
-    {
-        public AutoMapperProfile() 
-        {
+namespace ProjectsLibrary.Mapping {
+    public class AutoMapperProfile : Profile {
+        public AutoMapperProfile() {
             CreateMap<ProjectAddDto, Project>().ReverseMap();
             CreateMap<ProjectUpdateDto, Project>().ReverseMap();
             CreateMap<ProjectShortDto, Project>().ReverseMap();

@@ -2,10 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
-namespace ProjectLibrary.Tests.HomeTests
-{
-    public class HomeControllerLogoutTests : HomeControllerTests
-    {
+namespace ProjectLibrary.Tests.HomeTests {
+    public class HomeControllerLogoutTests : HomeControllerTests {
         [Fact]
         public async Task Logout_DeletesAuthCookieAndRedirectsToHome() {
             var responseCookiesMock = new Mock<IResponseCookies>();
@@ -15,8 +13,7 @@ namespace ProjectLibrary.Tests.HomeTests
             responseMock.Setup(r => r.Cookies).Returns(responseCookiesMock.Object);
             httpContextMock.Setup(h => h.Response).Returns(responseMock.Object);
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = httpContextMock.Object
             };
 
@@ -38,8 +35,7 @@ namespace ProjectLibrary.Tests.HomeTests
             responseMock.Setup(r => r.Cookies).Returns(responseCookiesMock.Object);
             httpContextMock.Setup(h => h.Response).Returns(responseMock.Object);
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = httpContextMock.Object
             };
 

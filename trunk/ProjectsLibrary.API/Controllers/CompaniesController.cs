@@ -9,19 +9,16 @@ using ProjectsLibrary.Domain.Models.RequestModels;
 using ProjectsLibrary.Domain.Models.Results;
 using ProjectsLibrary.DTOs.Company;
 
-namespace ProjectsLibrary.API.Controllers
-{
+namespace ProjectsLibrary.API.Controllers {
     [ApiController]
     [Route("api/[controller]")]
-    public class CompaniesController(ICompanyService service, IMapper mapper) : ControllerBase
-    {
+    public class CompaniesController(ICompanyService service, IMapper mapper) : ControllerBase {
         private readonly ICompanyService _service = service;
         private readonly IMapper _mapper = mapper;
 
         [Authorize(Policy = PolicyLevelName.BaseLevel)]
         [HttpGet]
-        public async Task<ActionResult<PagedResult<CompanyReadDto>>> Get([FromQuery]GetPagedModel model)
-        {
+        public async Task<ActionResult<PagedResult<CompanyReadDto>>> Get([FromQuery] GetPagedModel model) {
             var builtParams = ControllersExtensions.BuildGetMethodModelParams(model);
 
             var companiesPaged = await _service.GetPaginatedAsync(
@@ -31,8 +28,7 @@ namespace ProjectsLibrary.API.Controllers
 
             var companiesDtos = _mapper.Map<List<CompanyReadDto>>(companiesPaged.Datas);
 
-            var result = new PagedResult<CompanyReadDto>()
-            {
+            var result = new PagedResult<CompanyReadDto>() {
                 Datas = companiesDtos,
                 FilteredRecords = companiesPaged.FilteredRecords,
                 TotalRecords = companiesPaged.TotalRecords
@@ -43,8 +39,7 @@ namespace ProjectsLibrary.API.Controllers
 
         [Authorize(Policy = PolicyLevelName.BaseLevel)]
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<CompanyReadDto>> GetById([FromRoute] int id)
-        {
+        public async Task<ActionResult<CompanyReadDto>> GetById([FromRoute] int id) {
             var company = await _service.GetByIdNoTrackingAsync(id);
             var companyDto = _mapper.Map<CompanyReadDto>(company);
             return Ok(companyDto);
@@ -52,8 +47,7 @@ namespace ProjectsLibrary.API.Controllers
 
         [Authorize(Policy = PolicyLevelName.ManagmentLevel)]
         [HttpPost]
-        public async Task<ActionResult> Add([FromBody] CompanyAddDto companyDto)
-        {
+        public async Task<ActionResult> Add([FromBody] CompanyAddDto companyDto) {
             var company = _mapper.Map<Company>(companyDto);
             await _service.AddAsync(company);
             return CreatedAtAction(nameof(GetById), new { id = company.Id }, _mapper.Map<CompanyReadDto>(company));
@@ -61,8 +55,7 @@ namespace ProjectsLibrary.API.Controllers
 
         [Authorize(Policy = PolicyLevelName.ManagmentLevel)]
         [HttpPut("{id:int}")]
-        public async Task<ActionResult> Update([FromRoute]int id, [FromBody]CompanyUpdateDto companyDto) 
-        {
+        public async Task<ActionResult> Update([FromRoute] int id, [FromBody] CompanyUpdateDto companyDto) {
             var company = _mapper.Map<Company>(companyDto);
             company.Id = id;
             await _service.UpdateAsync(company);
@@ -71,8 +64,7 @@ namespace ProjectsLibrary.API.Controllers
 
         [Authorize(Policy = PolicyLevelName.ManagmentLevel)]
         [HttpDelete("{id:int}")]
-        public async Task<ActionResult> Delete([FromRoute] int id) 
-        {
+        public async Task<ActionResult> Delete([FromRoute] int id) {
             await _service.DeleteAsync(id);
             return NoContent();
         }

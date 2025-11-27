@@ -6,12 +6,10 @@ using ProjectsLibrary.MVC.Models.Home;
 using ProjectsLibrary.Domain.Exceptions;
 
 namespace ProjectLibrary.Tests.HomeTests {
-    public class HomeControllerLoginTests : HomeControllerTests 
-    {
+    public class HomeControllerLoginTests : HomeControllerTests {
         [Fact]
         public async Task Login_ValidEmployee_RedirectsToTasks() {
-            var employeeDto = new EmployeeLoginDto()
-            {
+            var employeeDto = new EmployeeLoginDto() {
                 Email = "testemail@test.te",
                 Password = "qwertyQAZ123",
             };
@@ -20,8 +18,7 @@ namespace ProjectLibrary.Tests.HomeTests {
 
             var httpContext = new DefaultHttpContext();
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = httpContext
             };
 
@@ -43,10 +40,8 @@ namespace ProjectLibrary.Tests.HomeTests {
         }
 
         [Fact]
-        public async Task Login_NotRegistredEmail_ReturnsViewWithError() 
-        {
-            var employeeDto = new EmployeeLoginDto()
-            {
+        public async Task Login_NotRegistredEmail_ReturnsViewWithError() {
+            var employeeDto = new EmployeeLoginDto() {
                 Email = "testemail@test.te",
                 Password = "qwertyQAZ123",
             };
@@ -73,10 +68,8 @@ namespace ProjectLibrary.Tests.HomeTests {
         }
 
         [Fact]
-        public async Task Login_InvalidPassword_ReturnsViewWithError() 
-        {
-            var employeeDto = new EmployeeLoginDto()
-            {
+        public async Task Login_InvalidPassword_ReturnsViewWithError() {
+            var employeeDto = new EmployeeLoginDto() {
                 Email = "testemail@test.te",
                 Password = "qwertyQAZ123",
             };
@@ -103,10 +96,8 @@ namespace ProjectLibrary.Tests.HomeTests {
         }
 
         [Fact]
-        public async Task Login_CreatedButNotRegistredEmployee_ReturnsViewWithError() 
-        {
-            var employeeDto = new EmployeeLoginDto()
-            {
+        public async Task Login_CreatedButNotRegistredEmployee_ReturnsViewWithError() {
+            var employeeDto = new EmployeeLoginDto() {
                 Email = "testemail@test.te",
                 Password = "qwertyQAZ123",
             };

@@ -1,13 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using ProjectsLibrary.Domain.Models.Enums;
 
-namespace ProjectsLibrary.DTOs.Task
-{
-    public class TaskAddDto
-    {
+namespace ProjectsLibrary.DTOs.Task {
+    public class TaskAddDto {
         [Required(ErrorMessage = "Task field is required.")]
         [StringLength(60, MinimumLength = 5)]
-        public required string Name { get; set; }= string.Empty;
+        public required string Name { get; set; } = string.Empty;
         [Required(ErrorMessage = "Status field is required.")]
         public TaskPLStatus Status { get; set; }
         [StringLength(350)]

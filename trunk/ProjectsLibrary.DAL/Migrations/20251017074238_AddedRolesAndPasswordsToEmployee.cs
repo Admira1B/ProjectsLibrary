@@ -2,14 +2,11 @@
 
 #nullable disable
 
-namespace ProjectsLibrary.DAL.Migrations
-{
+namespace ProjectsLibrary.DAL.Migrations {
     /// <inheritdoc />
-    public partial class AddedRolesAndPasswordsToEmployee : Migration
-    {
+    public partial class AddedRolesAndPasswordsToEmployee : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.AddColumn<string>(
                 name: "PasswordHash",
                 table: "Employees",
@@ -26,8 +23,7 @@ namespace ProjectsLibrary.DAL.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropColumn(
                 name: "PasswordHash",
                 table: "Employees");

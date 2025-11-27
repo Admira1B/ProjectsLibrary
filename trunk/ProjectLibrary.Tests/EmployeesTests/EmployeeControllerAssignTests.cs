@@ -1,13 +1,10 @@
 ﻿using Moq;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ProjectLibrary.Tests.EmployeesTests
-{
-    public class EmployeeControllerAssignTests : EmployeeControllerTests
-    {
+namespace ProjectLibrary.Tests.EmployeesTests {
+    public class EmployeeControllerAssignTests : EmployeeControllerTests {
         [Fact]
-        public async Task AssignTaskToEmployee_WithValidIds_ReturnsNoContent()
-        {
+        public async Task AssignTaskToEmployee_WithValidIds_ReturnsNoContent() {
             var employeeId = 1;
             var taskId = 100;
 
@@ -21,8 +18,7 @@ namespace ProjectLibrary.Tests.EmployeesTests
         }
 
         [Fact]
-        public async Task UnassignTaskFromEmployee_WithValidIds_ReturnsNoContent()
-        {
+        public async Task UnassignTaskFromEmployee_WithValidIds_ReturnsNoContent() {
             var employeeId = 1;
             var taskId = 100;
 

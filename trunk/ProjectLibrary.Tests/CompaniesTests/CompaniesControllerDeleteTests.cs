@@ -1,13 +1,10 @@
 ﻿using Moq;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ProjectLibrary.Tests.CompaniesTests
-{
-    public class CompaniesControllerDeleteTests : CompaniesControllerTests
-    {
+namespace ProjectLibrary.Tests.CompaniesTests {
+    public class CompaniesControllerDeleteTests : CompaniesControllerTests {
         [Fact]
-        public async Task Delete_WithValidId_ReturnsNoContent()
-        {
+        public async Task Delete_WithValidId_ReturnsNoContent() {
             var id = 1;
             _companyService.Setup(s => s.DeleteAsync(id))
                           .Returns(Task.CompletedTask);

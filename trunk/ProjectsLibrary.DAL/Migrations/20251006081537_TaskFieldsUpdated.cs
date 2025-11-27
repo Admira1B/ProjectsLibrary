@@ -2,14 +2,11 @@
 
 #nullable disable
 
-namespace ProjectsLibrary.DAL.Migrations
-{
+namespace ProjectsLibrary.DAL.Migrations {
     /// <inheritdoc />
-    public partial class TaskFieldsUpdated : Migration
-    {
+    public partial class TaskFieldsUpdated : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "Tasks",
@@ -79,8 +76,7 @@ namespace ProjectsLibrary.DAL.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropColumn(
                 name: "Comment",
                 table: "Tasks");

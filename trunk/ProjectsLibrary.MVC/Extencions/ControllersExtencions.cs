@@ -3,26 +3,20 @@ using ProjectsLibrary.Domain.Models.Enums;
 using ProjectsLibrary.Domain.Models.RequestModels;
 using System.Security.Claims;
 
-namespace ProjectsLibrary.API.Extencions
-{
-    public static class ControllersExtencions
-    {
-        public static (FilterParams filterParams, SortParams sortParams, PageParams pageParams) BuildGetMethodModelParams(GetPagedModel model) 
-        {
-            var filterParams = new FilterParams()
-            {
+namespace ProjectsLibrary.API.Extencions {
+    public static class ControllersExtencions {
+        public static (FilterParams filterParams, SortParams sortParams, PageParams pageParams) BuildGetMethodModelParams(GetPagedModel model) {
+            var filterParams = new FilterParams() {
                 SearchingValue = model.SearchingValue,
                 SearchableFieldsNames = model.SearchableFieldsNames
             };
 
-            var sortParams = new SortParams()
-            {
+            var sortParams = new SortParams() {
                 Direction = model.SortDirection == "asc" ? SortDirection.Ascending : SortDirection.Descending,
                 OrderByParam = model.SortColumn
             };
 
-            var pageParams = new PageParams()
-            {
+            var pageParams = new PageParams() {
                 PageSize = model.Length,
                 Skip = model.Start,
             };
@@ -30,8 +24,7 @@ namespace ProjectsLibrary.API.Extencions
             return (filterParams, sortParams, pageParams);
         }
 
-        public static EmployeeRole GetUserRole(ClaimsPrincipal user)
-        {
+        public static EmployeeRole GetUserRole(ClaimsPrincipal user) {
             var roleString = user.FindFirst("employeeRole")?.Value ?? null;
             if (roleString == null)
                 throw new NoRoleClaimToCurrentUserException(message: "Cannot found claim with user role information");
@@ -43,8 +36,7 @@ namespace ProjectsLibrary.API.Extencions
             return (EmployeeRole)role;
         }
 
-        public static int GetUserId(ClaimsPrincipal user) 
-        {
+        public static int GetUserId(ClaimsPrincipal user) {
             var userIdString = user.FindFirstValue("employeeId");
             return Convert.ToInt32(userIdString);
         }

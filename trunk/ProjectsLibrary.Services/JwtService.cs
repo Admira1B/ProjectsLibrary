@@ -8,13 +8,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace ProjectsLibrary.Services
-{
-    public class JwtService(IOptions<JwtOptions> options) : IJwtService
-    {
+namespace ProjectsLibrary.Services {
+    public class JwtService(IOptions<JwtOptions> options) : IJwtService {
         private readonly JwtOptions _options = options.Value;
-        public string GenerateWebToken(Employee employee) 
-        {
+        public string GenerateWebToken(Employee employee) {
             Claim[] claims =
             [
                 new("employeeId", $"{employee.Id}"),
@@ -28,8 +25,8 @@ namespace ProjectsLibrary.Services
                 SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                signingCredentials: signingCredentials, 
-                expires: DateTime.UtcNow.AddHours(_options.ExpiresHours), 
+                signingCredentials: signingCredentials,
+                expires: DateTime.UtcNow.AddHours(_options.ExpiresHours),
                 claims: claims);
 
             var result = new JwtSecurityTokenHandler().WriteToken(token);

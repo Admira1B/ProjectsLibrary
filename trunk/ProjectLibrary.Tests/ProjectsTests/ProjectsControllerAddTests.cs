@@ -3,13 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectsLibrary.Domain.Models.Entities;
 using ProjectsLibrary.DTOs.Project;
 
-namespace ProjectLibrary.Tests.ProjectsTests
-{
-    public class ProjectsControllerAddTests : ProjectsControllerTests
-    {
+namespace ProjectLibrary.Tests.ProjectsTests {
+    public class ProjectsControllerAddTests : ProjectsControllerTests {
         [Fact]
-        public async Task Add_WithValidProject_RedirectsToIndex()
-        {
+        public async Task Add_WithValidProject_RedirectsToIndex() {
             var projectAddDto = new ProjectAddDto { Name = "New Project" };
             var projectEntity = new Project { Name = "New Project" };
 
@@ -28,8 +25,7 @@ namespace ProjectLibrary.Tests.ProjectsTests
         }
 
         [Fact]
-        public async Task AddEmployeeToProject_WithValidIds_ReturnsNoContent()
-        {
+        public async Task AddEmployeeToProject_WithValidIds_ReturnsNoContent() {
             var projectId = 1;
             var employeeId = 2;
 
@@ -43,8 +39,7 @@ namespace ProjectLibrary.Tests.ProjectsTests
         }
 
         [Fact]
-        public async Task RemoveEmployeeFromProject_WithValidIds_ReturnsNoContent()
-        {
+        public async Task RemoveEmployeeFromProject_WithValidIds_ReturnsNoContent() {
             var projectId = 1;
             var employeeId = 2;
 

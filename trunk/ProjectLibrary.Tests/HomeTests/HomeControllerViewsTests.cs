@@ -2,21 +2,17 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjectsLibrary.MVC.Models.Home;
 
-namespace ProjectLibrary.Tests.HomeTests 
-{
-    public class HomeControllerViewsTests : HomeControllerTests 
-    {
+namespace ProjectLibrary.Tests.HomeTests {
+    public class HomeControllerViewsTests : HomeControllerTests {
         [Fact]
-        public void Index_WhenCalled_ReturnsView() 
-        {
+        public void Index_WhenCalled_ReturnsView() {
             var result = _controller.Index();
 
             Assert.IsType<ViewResult>(result);
         }
 
         [Fact]
-        public async Task Login_WhenCalled_ReturnsView() 
-        {
+        public async Task Login_WhenCalled_ReturnsView() {
             var model = new LoginViewModel();
 
             _viewModelBuilder.Setup(b => b.BuildLoginViewModelAsync(null)).ReturnsAsync(model);
@@ -27,8 +23,7 @@ namespace ProjectLibrary.Tests.HomeTests
         }
 
         [Fact]
-        public async Task Register_WithValidEmail_ReturnsView() 
-        {
+        public async Task Register_WithValidEmail_ReturnsView() {
             var email = "testemail@test.te";
             var model = new RegistrationViewModel();
 
@@ -40,8 +35,7 @@ namespace ProjectLibrary.Tests.HomeTests
         }
 
         [Fact]
-        public async Task Register_WithEmptyEmail_ReturnsView() 
-        {
+        public async Task Register_WithEmptyEmail_ReturnsView() {
             var email = "";
             var model = new RegistrationViewModel();
 

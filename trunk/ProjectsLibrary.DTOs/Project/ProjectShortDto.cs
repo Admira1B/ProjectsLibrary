@@ -1,7 +1,5 @@
-﻿namespace ProjectsLibrary.DTOs.Project
-{
-    public class ProjectShortDto
-    {
+﻿namespace ProjectsLibrary.DTOs.Project {
+    public class ProjectShortDto {
         public int Id { get; set; }
         public required string Name { get; set; } = string.Empty;
         public int Priority { get; set; }

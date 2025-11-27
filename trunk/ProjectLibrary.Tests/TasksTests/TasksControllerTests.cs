@@ -4,10 +4,8 @@ using ProjectsLibrary.MVC.Controllers;
 using ProjectsLibrary.Domain.Contracts.Services;
 using ProjectsLibrary.MVC.ViewModelBuilders.Interfaces;
 
-namespace ProjectLibrary.Tests.TasksTests
-{
-    public abstract class TasksControllerTests
-    {
+namespace ProjectLibrary.Tests.TasksTests {
+    public abstract class TasksControllerTests {
         protected readonly Mock<IMapper> _mapper;
         protected readonly Mock<ITaskService> _taskService;
         protected readonly Mock<IProjectService> _projectService;
@@ -15,8 +13,7 @@ namespace ProjectLibrary.Tests.TasksTests
         protected readonly Mock<ITaskViewModelBuilder> _viewModelBuilder;
         protected readonly TasksController _controller;
 
-        public TasksControllerTests()
-        {
+        public TasksControllerTests() {
             _mapper = new Mock<IMapper>();
             _taskService = new Mock<ITaskService>();
             _projectService = new Mock<IProjectService>();

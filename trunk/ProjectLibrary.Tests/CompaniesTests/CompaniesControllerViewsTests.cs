@@ -3,17 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using ProjectsLibrary.MVC.Models.Company;
 
-namespace ProjectLibrary.Tests.CompaniesTests
-{
-    public class CompaniesControllerViewsTests : CompaniesControllerTests
-    {
+namespace ProjectLibrary.Tests.CompaniesTests {
+    public class CompaniesControllerViewsTests : CompaniesControllerTests {
         [Fact]
-        public async Task Index_WhenCalled_ReturnsView()
-        {
+        public async Task Index_WhenCalled_ReturnsView() {
             var user = MockClaimHelper.BuildSupervisorClaim();
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
 
@@ -27,12 +23,10 @@ namespace ProjectLibrary.Tests.CompaniesTests
         }
 
         [Fact]
-        public async Task Details_WhenCalled_ReturnsView()
-        {
+        public async Task Details_WhenCalled_ReturnsView() {
             var user = MockClaimHelper.BuildSupervisorClaim();
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
 

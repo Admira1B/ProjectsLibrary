@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProjectsLibrary.DTOs.Employee
-{
-    public class EmployeeLoginDto
-    {
+namespace ProjectsLibrary.DTOs.Employee {
+    public class EmployeeLoginDto {
         [Required]
         [EmailAddress]
         public required string Email { get; set; } = string.Empty;

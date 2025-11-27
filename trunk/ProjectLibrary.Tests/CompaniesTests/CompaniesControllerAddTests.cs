@@ -3,20 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectsLibrary.DTOs.Company;
 using ProjectsLibrary.Domain.Models.Entities;
 
-namespace ProjectLibrary.Tests.CompaniesTests
-{
-    public class CompaniesControllerAddTests : CompaniesControllerTests
-    {
+namespace ProjectLibrary.Tests.CompaniesTests {
+    public class CompaniesControllerAddTests : CompaniesControllerTests {
         [Fact]
-        public async Task Add_WithValidDto_ReturnsRedirectToActionResult()
-        {
-            var companyAddDto = new CompanyAddDto
-            {
+        public async Task Add_WithValidDto_ReturnsRedirectToActionResult() {
+            var companyAddDto = new CompanyAddDto {
                 Name = "New Company",
             };
 
-            var company = new Company
-            {
+            var company = new Company {
                 Name = "New Company",
             };
 

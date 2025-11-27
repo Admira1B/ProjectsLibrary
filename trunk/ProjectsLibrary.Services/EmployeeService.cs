@@ -7,30 +7,25 @@ using ProjectsLibrary.Domain.Models.RequestModels;
 using ProjectsLibrary.Domain.Models.Results;
 using ProjectsLibrary.Services.Extencions;
 
-namespace ProjectsLibrary.Services
-{
-    public class EmployeeService(IEmployeeRepository repository, ITaskService taskService, IPasswordHasherService passwordHasher, IJwtService jwtService) : IEmployeeService
-    {
+namespace ProjectsLibrary.Services {
+    public class EmployeeService(IEmployeeRepository repository, ITaskService taskService, IPasswordHasherService passwordHasher, IJwtService jwtService) : IEmployeeService {
         private readonly IEmployeeRepository _repository = repository;
         private readonly ITaskService _taskService = taskService;
         private readonly IPasswordHasherService _passwordHasher = passwordHasher;
         private readonly IJwtService _jwtService = jwtService;
 
-        public async Task RegisterAsync(Employee employee, string password)
-        {
+        public async Task RegisterAsync(Employee employee, string password) {
             var existingEmployee = await GetByEmailAsync(employee.Email);
 
-            if (existingEmployee != null)
-            {
-                if (string.IsNullOrWhiteSpace(existingEmployee.PasswordHash))
-                {
+            if (existingEmployee != null) {
+                if (string.IsNullOrWhiteSpace(existingEmployee.PasswordHash)) {
                     existingEmployee.PasswordHash = _passwordHasher.GetPasswordHash(password);
                     await UpdateAsync(existingEmployee);
                     return;
                 }
 
                 throw new EmployeeAlreadyExistsException(
-                    message:"Employee already exists",
+                    message: "Employee already exists",
                     details: $"Employee with email {employee.Email} exists");
             }
 
@@ -40,26 +35,22 @@ namespace ProjectsLibrary.Services
             await _repository.SaveChangesAsync();
         }
 
-        public async Task<string> LoginAsync(string email, string password)
-        {
+        public async Task<string> LoginAsync(string email, string password) {
             var employee = await GetByEmailAsync(email);
 
-            if (employee == null)
-            {
+            if (employee == null) {
                 throw new EmailNotRegisteredException(
                     message: "Invalid email",
                     details: $"Employee with email {email} doesn`t exists");
             }
 
-            if (string.IsNullOrWhiteSpace(employee.PasswordHash))
-            {
+            if (string.IsNullOrWhiteSpace(employee.PasswordHash)) {
                 throw new CreatedEmployeeNotRegisteredException(
                     message: "Employee not registered",
                     details: $"Employee with email {email} exists, but not registered");
             }
 
-            if (!_passwordHasher.VerifyPassword(password, employee.PasswordHash)) 
-            {
+            if (!_passwordHasher.VerifyPassword(password, employee.PasswordHash)) {
                 throw new IncorrectEmployeePasswordException(
                     message: "Invalid password",
                     details: $"Invalid password for user with email {email}");
@@ -70,38 +61,32 @@ namespace ProjectsLibrary.Services
             return token;
         }
 
-        public async Task AddAsync(Employee employee)
-        {
+        public async Task AddAsync(Employee employee) {
             await _repository.Add(employee);
             await _repository.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
-        {
+        public async Task DeleteAsync(int id) {
             await EnsureEmployeeExistsAsync(id);
             await _repository.Delete(id);
         }
 
-        public async Task<List<Employee>> GetAsync()
-        {
+        public async Task<List<Employee>> GetAsync() {
             var query = _repository.Get();
             return await query.ToListAsync();
         }
 
-        public async Task<List<Employee>> GetDataOnlyAsync()
-        {
+        public async Task<List<Employee>> GetDataOnlyAsync() {
             var query = _repository.GetDataOnly();
             return await query.ToListAsync();
         }
 
-        public async Task<PagedResult<Employee>> GetPaginatedAsync(FilterParams filterParams, SortParams sortParams, PageParams pageParams)
-        {
+        public async Task<PagedResult<Employee>> GetPaginatedAsync(FilterParams filterParams, SortParams sortParams, PageParams pageParams) {
             var allEmployees = _repository.Get();
             var filteredEmployees = allEmployees.Filter(filterParams).Sort(sortParams);
             var paginatedEmployees = await filteredEmployees.Paginate(pageParams).ToListAsync();
 
-            var result = new PagedResult<Employee>()
-            {
+            var result = new PagedResult<Employee>() {
                 Datas = paginatedEmployees,
                 FilteredRecords = filteredEmployees.Count(),
                 TotalRecords = allEmployees.Count(),
@@ -110,31 +95,26 @@ namespace ProjectsLibrary.Services
             return result;
         }
 
-        public async Task<Employee> GetByIdNoTrackingAsync(int id)
-        {
+        public async Task<Employee> GetByIdNoTrackingAsync(int id) {
             await EnsureEmployeeExistsAsync(id);
             return await _repository.GetByIdNoTracking(id);
         }
-        public async Task<Employee> GetByIdAsync(int id)
-        {
+        public async Task<Employee> GetByIdAsync(int id) {
             await EnsureEmployeeExistsAsync(id);
             return await _repository.GetById(id);
         }
 
-        public async Task<Employee> GetEmployeeWithTasksNoTrackingAsync(int id)
-        {
+        public async Task<Employee> GetEmployeeWithTasksNoTrackingAsync(int id) {
             await EnsureEmployeeExistsAsync(id);
             return await _repository.GetEmployeeWithTasksNoTracking(id);
         }
 
-        public async Task<Employee> GetEmployeeWithProjectsNoTrackingAsync(int id)
-        {
+        public async Task<Employee> GetEmployeeWithProjectsNoTrackingAsync(int id) {
             await EnsureEmployeeExistsAsync(id);
             return await _repository.GetEmployeeWithProjectsNoTracking(id);
         }
 
-        public async Task<List<Project>> GetEmployeeAllProjectsByIdNoTrackingAsync(int id) 
-        {
+        public async Task<List<Project>> GetEmployeeAllProjectsByIdNoTrackingAsync(int id) {
             var employee = await GetByIdAsync(id);
             var managedProjects = employee.ManagedProjects;
             var workingProjects = employee.WorkingProjects;
@@ -144,21 +124,18 @@ namespace ProjectsLibrary.Services
             return result;
         }
 
-        public async Task UpdateAsync(Employee employee)
-        {
+        public async Task UpdateAsync(Employee employee) {
             await EnsureEmployeeExistsAsync(employee.Id);
             await _repository.Update(employee);
         }
 
-        public async Task AssignTaskToEmployee(int employeeId, int taskId)
-        {
+        public async Task AssignTaskToEmployee(int employeeId, int taskId) {
             var employee = await GetByIdAsync(employeeId);
             var task = await _taskService.GetByIdAsync(taskId);
 
-            if (employee.ExecutingTasks.Any(t => t.Id == taskId))
-            {
+            if (employee.ExecutingTasks.Any(t => t.Id == taskId)) {
                 throw new EntityCollectionModificationException(
-                    message: "The employee is already working on this task", 
+                    message: "The employee is already working on this task",
                     details: $"Task with id {taskId} already exists into employee`s tasks");
             }
 
@@ -166,15 +143,13 @@ namespace ProjectsLibrary.Services
             await _repository.SaveChangesAsync();
         }
 
-        public async Task UnassignTaskToEmployee(int employeeId, int taskId)
-        {
+        public async Task UnassignTaskToEmployee(int employeeId, int taskId) {
             var employee = await GetByIdAsync(employeeId);
             var task = await _taskService.GetByIdAsync(taskId);
 
-            if (!employee.ExecutingTasks.Any(t => t.Id == taskId))
-            {
+            if (!employee.ExecutingTasks.Any(t => t.Id == taskId)) {
                 throw new EntityCollectionModificationException(
-                    message: "The employee is not working on this task", 
+                    message: "The employee is not working on this task",
                     details: $"Task with id {taskId} doesn`t exists into employee`s tasks");
             }
 
@@ -182,18 +157,15 @@ namespace ProjectsLibrary.Services
             await _repository.SaveChangesAsync();
         }
 
-        private async Task EnsureEmployeeExistsAsync(int id)
-        {
-            if (!await _repository.ExistsAsync(id))
-            {
+        private async Task EnsureEmployeeExistsAsync(int id) {
+            if (!await _repository.ExistsAsync(id)) {
                 throw new EntityNotFoundException(
                     message: "Employee not found",
                     details: $"Employee with id {id} doesn't exists");
             }
         }
 
-        private async Task<Employee?> GetByEmailAsync(string email) 
-        {
+        private async Task<Employee?> GetByEmailAsync(string email) {
             return await _repository.GetDataOnly()
                 .Where(e => e.Email.ToLower() == email.ToLower())
                 .FirstOrDefaultAsync();

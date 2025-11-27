@@ -7,15 +7,11 @@ using ProjectsLibrary.Domain.Models.Results;
 using ProjectsLibrary.Domain.Models.Entities;
 using ProjectsLibrary.Domain.Models.RequestModels;
 
-namespace ProjectLibrary.Tests.ProjectsTests
-{
-    public class ProjectsControllerGetTests : ProjectsControllerTests
-    {
+namespace ProjectLibrary.Tests.ProjectsTests {
+    public class ProjectsControllerGetTests : ProjectsControllerTests {
         [Fact]
-        public async Task Get_WithValidModel_ReturnsJsonResult()
-        {
-            var model = new GetPagedModel
-            {
+        public async Task Get_WithValidModel_ReturnsJsonResult() {
+            var model = new GetPagedModel {
                 Draw = 1,
                 Start = 0,
                 Length = 10,
@@ -31,8 +27,7 @@ namespace ProjectLibrary.Tests.ProjectsTests
                 new() { Id = 2, Name = "Test Project 2" }
             };
 
-            var pagedResult = new PagedResult<Project>
-            {
+            var pagedResult = new PagedResult<Project> {
                 Datas = projects,
                 TotalRecords = 100,
                 FilteredRecords = 50
@@ -46,8 +41,7 @@ namespace ProjectLibrary.Tests.ProjectsTests
 
             var user = MockClaimHelper.BuildManagerClaim();
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
 
@@ -70,16 +64,13 @@ namespace ProjectLibrary.Tests.ProjectsTests
         }
 
         [Fact]
-        public async Task GetById_WithValidId_ReturnsProjectReadDto()
-        {
+        public async Task GetById_WithValidId_ReturnsProjectReadDto() {
             var projectId = 1;
-            var project = new Project
-            {
+            var project = new Project {
                 Id = projectId,
                 Name = "Test Project",
             };
-            var projectDto = new ProjectReadDto
-            {
+            var projectDto = new ProjectReadDto {
                 Id = projectId,
                 Name = "Test Project",
             };
@@ -100,11 +91,9 @@ namespace ProjectLibrary.Tests.ProjectsTests
         }
 
         [Fact]
-        public async Task GetProjectWithTasks_WithValidId_ReturnsProjectWithTasks()
-        {
+        public async Task GetProjectWithTasks_WithValidId_ReturnsProjectWithTasks() {
             var projectId = 1;
-            var project = new Project
-            {
+            var project = new Project {
                 Id = projectId,
                 Name = "Test Project",
                 Tasks =
@@ -114,8 +103,7 @@ namespace ProjectLibrary.Tests.ProjectsTests
                 ]
             };
 
-            var projectTasksInfoDto = new ProjectTasksInfoDto
-            {
+            var projectTasksInfoDto = new ProjectTasksInfoDto {
                 Id = projectId,
                 Name = "Test Project",
             };

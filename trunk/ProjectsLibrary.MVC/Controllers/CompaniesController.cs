@@ -10,25 +10,21 @@ using ProjectsLibrary.DTOs.Company;
 using ProjectsLibrary.MVC.Helpers;
 using ProjectsLibrary.MVC.ViewModelBuilders.Interfaces;
 
-namespace ProjectsLibrary.MVC.Controllers
-{
-    public class CompaniesController(ICompanyViewModelBuilder viewModelBuilder, ICompanyService service, IMapper mapper) : Controller
-    {
+namespace ProjectsLibrary.MVC.Controllers {
+    public class CompaniesController(ICompanyViewModelBuilder viewModelBuilder, ICompanyService service, IMapper mapper) : Controller {
         private readonly ICompanyViewModelBuilder _viewModelBuilder = viewModelBuilder;
         private readonly ICompanyService _service = service;
         private readonly IMapper _mapper = mapper;
 
         [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
-        public async Task<IActionResult> Index()
-        {
+        public async Task<IActionResult> Index() {
             var model = await _viewModelBuilder.BuildIndexViewModelAsync();
 
             return View(model);
         }
-        
+
         [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
-        public async Task<IActionResult> Details(int id)
-        {
+        public async Task<IActionResult> Details(int id) {
             var model = await _viewModelBuilder.BuildDetailsViewModelAsync(id);
 
             return View(model);
@@ -36,8 +32,7 @@ namespace ProjectsLibrary.MVC.Controllers
 
         [HttpPost]
         [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
-        public async Task<ActionResult> Get(GetPagedModel model) 
-        {
+        public async Task<ActionResult> Get(GetPagedModel model) {
             var builtParams = ControllerHelper.BuildGetMethodModelParams(model);
 
             var companiesPaged = await _service.GetPaginatedAsync(
@@ -47,16 +42,14 @@ namespace ProjectsLibrary.MVC.Controllers
 
             var companiesDtos = _mapper.Map<List<CompanyReadDto>>(companiesPaged.Datas);
 
-            var result = new PagedResult<CompanyReadDto>()
-            {
+            var result = new PagedResult<CompanyReadDto>() {
                 Datas = companiesDtos,
                 FilteredRecords = companiesPaged.FilteredRecords,
                 TotalRecords = companiesPaged.TotalRecords
             };
 
             return Json
-            (new
-            {
+            (new {
                 model.Draw,
                 recordsFiltered = result.FilteredRecords,
                 recordsTotal = result.TotalRecords,
@@ -66,8 +59,7 @@ namespace ProjectsLibrary.MVC.Controllers
 
         [HttpPost]
         [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
-        public async Task<ActionResult> Add(CompanyAddDto companyAddDto)
-        {
+        public async Task<ActionResult> Add(CompanyAddDto companyAddDto) {
             var company = _mapper.Map<Company>(companyAddDto);
             await _service.AddAsync(company);
 
@@ -76,19 +68,17 @@ namespace ProjectsLibrary.MVC.Controllers
 
         [HttpPost]
         [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
-        public async Task<IActionResult> Update([FromRoute] int id, CompanyUpdateDto company)
-        {
+        public async Task<IActionResult> Update([FromRoute] int id, CompanyUpdateDto company) {
             var companyEntity = _mapper.Map<Company>(company);
             companyEntity.Id = id;
             await _service.UpdateAsync(companyEntity);
-         
+
             return RedirectToAction("Index");
         }
 
         [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
         [HttpDelete("Companies/Delete/{id:int}")]
-        public async Task<ActionResult> Delete([FromRoute] int id)
-        {
+        public async Task<ActionResult> Delete([FromRoute] int id) {
             await _service.DeleteAsync(id);
             return NoContent();
         }

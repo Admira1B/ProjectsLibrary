@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProjectsLibrary.DTOs.Project
-{
-    public class ProjectUpdateDto
-    {
+namespace ProjectsLibrary.DTOs.Project {
+    public class ProjectUpdateDto {
         [Required(ErrorMessage = "Project`s name field is required.")]
         [StringLength(25, MinimumLength = 3)]
         public required string Name { get; set; } = string.Empty;

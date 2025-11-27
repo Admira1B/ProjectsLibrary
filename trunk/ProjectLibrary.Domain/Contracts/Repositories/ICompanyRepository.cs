@@ -1,9 +1,7 @@
 ﻿using ProjectsLibrary.Domain.Models.Entities;
 
-namespace ProjectsLibrary.Domain.Contracts.Repositories
-{
-    public interface ICompanyRepository
-    {
+namespace ProjectsLibrary.Domain.Contracts.Repositories {
+    public interface ICompanyRepository {
         Task Add(Company company);
         Task Delete(int id);
         Task<bool> ExistsAsync(int id);

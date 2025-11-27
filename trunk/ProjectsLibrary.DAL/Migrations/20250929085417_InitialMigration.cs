@@ -3,46 +3,38 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ProjectsLibrary.DAL.Migrations
-{
+namespace ProjectsLibrary.DAL.Migrations {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
-    {
+    public partial class InitialMigration : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.CreateTable(
                 name: "Companies",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Companies", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Employees",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FirstName = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Employees", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Projects",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
@@ -52,8 +44,7 @@ namespace ProjectsLibrary.DAL.Migrations
                     ProjectManagerId = table.Column<int>(type: "int", nullable: false),
                     CompanyId = table.Column<int>(type: "int", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Projects", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Projects_Companies_CompanyId",
@@ -71,13 +62,11 @@ namespace ProjectsLibrary.DAL.Migrations
 
             migrationBuilder.CreateTable(
                 name: "EmployeeProject",
-                columns: table => new
-                {
+                columns: table => new {
                     EmployeesId = table.Column<int>(type: "int", nullable: false),
                     WorkingProjectsId = table.Column<int>(type: "int", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_EmployeeProject", x => new { x.EmployeesId, x.WorkingProjectsId });
                     table.ForeignKey(
                         name: "FK_EmployeeProject_Employees_EmployeesId",
@@ -95,8 +84,7 @@ namespace ProjectsLibrary.DAL.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Tasks",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -104,8 +92,7 @@ namespace ProjectsLibrary.DAL.Migrations
                     CreatorId = table.Column<int>(type: "int", nullable: false),
                     ExecutorId = table.Column<int>(type: "int", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Tasks", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Tasks_Employees_CreatorId",
@@ -159,8 +146,7 @@ namespace ProjectsLibrary.DAL.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropTable(
                 name: "EmployeeProject");
 

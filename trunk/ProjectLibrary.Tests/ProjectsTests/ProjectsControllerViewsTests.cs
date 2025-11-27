@@ -3,17 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProjectsLibrary.MVC.Models.Project;
 
-namespace ProjectLibrary.Tests.ProjectsTests
-{
-    public class ProjectsControllerViewsTests : ProjectsControllerTests
-    {
+namespace ProjectLibrary.Tests.ProjectsTests {
+    public class ProjectsControllerViewsTests : ProjectsControllerTests {
         [Fact]
-        public async Task Index_WhenCalled_ReturnsView()
-        {
+        public async Task Index_WhenCalled_ReturnsView() {
             var user = MockClaimHelper.BuildManagerClaim();
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
 
@@ -27,12 +23,10 @@ namespace ProjectLibrary.Tests.ProjectsTests
         }
 
         [Fact]
-        public async Task Add_WhenCalled_ReturnsView()
-        {
+        public async Task Add_WhenCalled_ReturnsView() {
             var user = MockClaimHelper.BuildManagerClaim();
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
 
@@ -46,12 +40,10 @@ namespace ProjectLibrary.Tests.ProjectsTests
         }
 
         [Fact]
-        public async Task Details_WhenCalled_ReturnsView()
-        {
+        public async Task Details_WhenCalled_ReturnsView() {
             var user = MockClaimHelper.BuildManagerClaim();
 
-            _controller.ControllerContext = new ControllerContext()
-            {
+            _controller.ControllerContext = new ControllerContext() {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
 

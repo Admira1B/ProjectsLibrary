@@ -6,15 +6,11 @@ using ProjectsLibrary.Domain.Models.Results;
 using ProjectsLibrary.Domain.Models.Entities;
 using ProjectsLibrary.Domain.Models.RequestModels;
 
-namespace ProjectLibrary.Tests.EmployeesTests
-{
-    public class EmployeeControllerGetTests : EmployeeControllerTests
-    {
+namespace ProjectLibrary.Tests.EmployeesTests {
+    public class EmployeeControllerGetTests : EmployeeControllerTests {
         [Fact]
-        public async Task Get_WithValidModel_ReturnsJsonResult()
-        {
-            var model = new GetPagedModel
-            {
+        public async Task Get_WithValidModel_ReturnsJsonResult() {
+            var model = new GetPagedModel {
                 Draw = 1,
                 Start = 0,
                 Length = 10,
@@ -30,8 +26,7 @@ namespace ProjectLibrary.Tests.EmployeesTests
                 new() { Id = 2, FirstName = "Jhon", LastName = "Doetwo", Email = "testemail@test.te" }
             };
 
-            var pagedResult = new PagedResult<Employee>
-            {
+            var pagedResult = new PagedResult<Employee> {
                 Datas = employees,
                 TotalRecords = 100,
                 FilteredRecords = 50
@@ -58,12 +53,10 @@ namespace ProjectLibrary.Tests.EmployeesTests
         }
 
         [Fact]
-        public async Task GetDataOnlyWithoutWorking_WithValidProjectId_ReturnsFilteredEmployees()
-        {
+        public async Task GetDataOnlyWithoutWorking_WithValidProjectId_ReturnsFilteredEmployees() {
             var projectId = 1;
 
-            var project = new Project
-            {
+            var project = new Project {
                 Id = projectId,
                 Name = "Project Name",
                 Employees =
@@ -118,11 +111,9 @@ namespace ProjectLibrary.Tests.EmployeesTests
         }
 
         [Fact]
-        public async Task GetEmployeeWithTasks_WithValidId_ReturnsEmployeeWithTasks()
-        {
+        public async Task GetEmployeeWithTasks_WithValidId_ReturnsEmployeeWithTasks() {
             var employeeId = 1;
-            var employee = new Employee
-            {
+            var employee = new Employee {
                 Id = employeeId,
                 FirstName = "John",
                 LastName = "Doe",
@@ -134,8 +125,7 @@ namespace ProjectLibrary.Tests.EmployeesTests
                 ]
             };
 
-            var employeeDto = new EmployeeReadDto
-            {
+            var employeeDto = new EmployeeReadDto {
                 Id = employeeId,
                 FirstName = "John",
                 LastName = "Doe",
@@ -162,11 +152,9 @@ namespace ProjectLibrary.Tests.EmployeesTests
         }
 
         [Fact]
-        public async Task GetEmployeeWithProjects_WithValidId_ReturnsEmployeeWithProjects()
-        {
+        public async Task GetEmployeeWithProjects_WithValidId_ReturnsEmployeeWithProjects() {
             var employeeId = 1;
-            var employee = new Employee
-            {
+            var employee = new Employee {
                 Id = employeeId,
                 FirstName = "Jane",
                 LastName = "Smith",
@@ -178,8 +166,7 @@ namespace ProjectLibrary.Tests.EmployeesTests
                 ]
             };
 
-            var employeeDto = new EmployeeReadDto
-            {
+            var employeeDto = new EmployeeReadDto {
                 Id = employeeId,
                 FirstName = "Jane",
                 LastName = "Smith",
