@@ -1,14 +1,17 @@
 ﻿using Moq;
 using Microsoft.AspNetCore.Mvc;
-using ProjectsLibrary.DTOs.Company;
 using ProjectsLibrary.Domain.Models.Entities;
-using ProjectsLibrary.Domain.Models.Results;
 using ProjectsLibrary.Domain.Models.RequestModels;
+using ProjectsLibrary.Domain.Models.Results;
+using ProjectsLibrary.DTOs.Company;
 
 namespace ProjectLibrary.Tests.CompaniesTests {
-    public class CompaniesControllerGetTests : CompaniesControllerTests {
+    public class CompaniesControllerApiTests : CompaniesControllerTests {
         [Fact]
-        public async Task Get_WithValidModel_ReturnsJsonResult() {
+        public async Task Get_WithValidModel_ReturnsOk() {
+            var companies = new List<Company>();
+            var companyDtos = new List<CompanyReadDto>();
+
             var model = new GetPagedModel {
                 Draw = 1,
                 Start = 0,
@@ -19,23 +22,12 @@ namespace ProjectLibrary.Tests.CompaniesTests {
                 SortDirection = "asc"
             };
 
-            var companies = new List<Company>
-            {
-                new() { Id = 1, Name = "Test Company 1" },
-                new() { Id = 2, Name = "Test Company 2" }
-            };
-
             var pagedResult = new PagedResult<Company> {
                 Datas = companies,
                 TotalRecords = 100,
                 FilteredRecords = 50
             };
 
-            var companyDtos = new List<CompanyReadDto>
-            {
-                new() { Id = 1, Name = "Test Company 1" },
-                new() { Id = 2, Name = "Test Company 2" }
-            };
 
             _companyService.Setup(s => s.GetPaginatedAsync(
                 It.IsAny<FilterParams>(),
@@ -46,9 +38,29 @@ namespace ProjectLibrary.Tests.CompaniesTests {
             _mapper.Setup(m => m.Map<List<CompanyReadDto>>(companies))
                    .Returns(companyDtos);
 
-            var result = await _controller.Get(model);
+            var result = await _apiController.Get(model);
 
-            Assert.IsType<JsonResult>(result);
+            Assert.IsType<OkObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task Add_WithValidDto_ReturnsOk() {
+            var company = new Company();
+            var companyDto = new CompanyAddDto() { Name = "CompanyName" };
+
+            _mapper.Setup(m => m.Map<Company>(companyDto)).Returns(company);
+
+            var result = await _apiController.Add(companyDto);
+
+            Assert.IsType<CreatedResult>(result);
+        }
+
+        [Fact]
+        public async Task Delete_WithValidId_ReturnsNoContent() {
+            var id = 1;
+            var result = await _apiController.Delete(id);
+
+            Assert.IsType<NoContentResult>(result);
         }
     }
 }

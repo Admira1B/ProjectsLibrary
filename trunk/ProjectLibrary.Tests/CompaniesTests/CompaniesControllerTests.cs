@@ -10,12 +10,14 @@ namespace ProjectLibrary.Tests.CompaniesTests {
         protected readonly Mock<ICompanyService> _companyService;
         protected readonly Mock<ICompanyViewModelBuilder> _viewModelBuilder;
         protected readonly CompaniesController _controller;
+        protected readonly ProjectsLibrary.MVC.Controllers.Api.CompaniesController _apiController;
 
         public CompaniesControllerTests() {
             _mapper = new Mock<IMapper>();
             _companyService = new Mock<ICompanyService>();
             _viewModelBuilder = new Mock<ICompanyViewModelBuilder>();
             _controller = new CompaniesController(_viewModelBuilder.Object, _companyService.Object, _mapper.Object);
+            _apiController = new ProjectsLibrary.MVC.Controllers.Api.CompaniesController(_companyService.Object, _mapper.Object);
         }
     }
 }

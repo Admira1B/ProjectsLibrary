@@ -174,7 +174,7 @@
                             Project Manager
                         </h3>
                         <ul class="list-group mx-4 mb-2" aria-label="Project manager information">
-                            <li id="projectManagerItem" ></li>
+                            <li id="projectManagerItem"></li>
                         </ul>
                     </section>
 
@@ -254,14 +254,8 @@
 
         const ProjectsConfig = {
             urls: {
-                getProjects: '@Url.Action("Get", "Projects")',
-                deleteProject: '@Url.Action("Delete", "Projects")',
+                apiUrl: '/Api/Projects',
                 projectDetails: '@Url.Action("Details", "Projects")',
-                getProjectWithTasks: '/Projects/GetProjectWithTasks',
-                getProjectById: '/Projects/GetById',
-                getAvailableEmployees: '/Employees/GetDataOnlyWithoutWorking',
-                addEmployeeToProject: '/Projects',
-                removeEmployeeFromProject: '/Projects'
             },
             constants: {
                 userRole: userRole,
@@ -299,16 +293,22 @@
                         zeroRecords: 'No matching projects found'
                     },
                     ajax: {
-                      url: ProjectsConfig.urls.getProjects,
-                      type: 'POST',
+                      url: `${ProjectsConfig.urls.apiUrl}`,
+                      type: 'GET',
                       dataType: 'json',
-                      data: function (d) {
-                        var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
-                        d.sortColumn = d.columns[order.column].name;
-                        d.sortDirection = order.dir;
-                        d.searchingValue = d.search.value;
-                        d.searchableFieldsNames = ['name'];
-                      },
+                        data: function (d) {
+                            var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
+
+                            return {
+                                draw: d.draw,
+                                start: d.start,
+                                length: d.length,
+                                searchValue: d.search.value,
+                                sortColumn: d.columns[order.column].name,
+                                sortDirection: order.dir,
+                                searchableFieldsNames: ['name']
+                            };
+                        },
                       error: function(xhr, error, thrown) {
                           console.error('DataTables AJAX error:', error);
                       }
@@ -469,7 +469,7 @@
                     const modal = new bootstrap.Modal(document.getElementById('projectsTasksModal'));
 
                     const project = await $.ajax({
-                        url: `${ProjectsConfig.urls.getProjectWithTasks}/${projectId}`,
+                        url: `${ProjectsConfig.urls.apiUrl}/${projectId}/with-tasks`,
                         method: 'GET',
                         dataType: 'json'
                     });
@@ -561,12 +561,12 @@
                 try {
                     const [currentProject, availableEmployees] = await Promise.all([
                         $.ajax({
-                            url: `${ProjectsConfig.urls.getProjectById}/${projectId}`,
+                            url: `${ProjectsConfig.urls.apiUrl}/${projectId}`,
                             method: 'GET',
                             dataType: 'json'
                         }),
                         $.ajax({
-                            url: `${ProjectsConfig.urls.getAvailableEmployees}/${projectId}`,
+                            url: `/Api/Employees/${projectId}/available-employees`,
                             method: 'GET',
                             dataType: 'json'
                         })
@@ -634,7 +634,7 @@
                 $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
 
                 $.ajax({
-                    url: `${ProjectsConfig.urls.deleteProject}/${projectId}`,
+                    url: `${ProjectsConfig.urls.apiUrl}/${projectId}`,
                     type: 'DELETE',
                     dataType: 'json',
                     success: function (response) {
@@ -662,7 +662,7 @@
 
                 try {
                     await $.ajax({
-                        url: `${ProjectsConfig.urls.addEmployeeToProject}/${projectId}/add/${employeeId}`,
+                        url: `${ProjectsConfig.urls.apiUrl}/${projectId}/add/${employeeId}`,
                         type: 'PATCH'
                     });
                     await ProjectModals.refreshEmployeesData(projectId);
@@ -680,7 +680,7 @@
 
                 try {
                     await $.ajax({
-                        url: `${ProjectsConfig.urls.removeEmployeeFromProject}/${projectId}/remove/${employeeId}`,
+                        url: `${ProjectsConfig.urls.apiUrl}/${projectId}/remove/${employeeId}`,
                         type: 'PATCH'
                     });
                     await ProjectModals.refreshEmployeesData(projectId);

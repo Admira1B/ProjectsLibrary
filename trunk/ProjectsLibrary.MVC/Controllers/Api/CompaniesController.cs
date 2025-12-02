@@ -48,21 +48,11 @@ namespace ProjectsLibrary.MVC.Controllers.Api {
             var company = _mapper.Map<Company>(companyAddDto);
             await _service.AddAsync(company);
 
-            return Ok(new { success = true });
+            return Created();
         }
 
-        [HttpPut("{id:int}")]
-        [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
-        public async Task<ActionResult> Update(int id, CompanyUpdateDto company) {
-            var companyEntity = _mapper.Map<Company>(company);
-            companyEntity.Id = id;
-            await _service.UpdateAsync(companyEntity);
-
-            return Ok(new { success = true });
-        }
-
-        [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
         [HttpDelete("{id:int}")]
+        [Authorize(Policy = PolicyLevelName.SupervisorLevel)]
         public async Task<ActionResult> Delete(int id) {
             await _service.DeleteAsync(id);
             return NoContent();

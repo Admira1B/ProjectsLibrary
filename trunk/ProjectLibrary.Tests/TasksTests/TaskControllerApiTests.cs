@@ -1,15 +1,15 @@
 ﻿using Moq;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ProjectsLibrary.DTOs.Task;
-using ProjectsLibrary.Domain.Models.Results;
+using Microsoft.AspNetCore.Http;
 using ProjectsLibrary.Domain.Models.Entities;
 using ProjectsLibrary.Domain.Models.RequestModels;
+using ProjectsLibrary.Domain.Models.Results;
+using ProjectsLibrary.DTOs.Task;
 
 namespace ProjectLibrary.Tests.TasksTests {
-    public class TasksControllerGetTests : TasksControllerTests {
+    public class TaskControllerApiTests : TasksControllerTests {
         [Fact]
-        public async Task Get_WithValidModel_ReturnsJsonResult() {
+        public async Task Get_WithValidModel_ReturnsOk() {
             var model = new GetPagedModel {
                 Draw = 1,
                 Start = 0,
@@ -22,7 +22,7 @@ namespace ProjectLibrary.Tests.TasksTests {
 
             var user = MockClaimHelper.BuildManagerClaim();
 
-            _controller.ControllerContext = new ControllerContext {
+            _apiController.ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext { User = user }
             };
 
@@ -48,15 +48,26 @@ namespace ProjectLibrary.Tests.TasksTests {
                 It.IsAny<FilterParams>(),
                 It.IsAny<SortParams>(),
                 It.IsAny<PageParams>(),
-                1))
+                It.IsAny<int>()))
                 .ReturnsAsync(pagedResult);
 
-            _mapper.Setup(m => m.Map<List<TaskReadDto>>(tasks))
-                   .Returns(tasksDtos);
+            _mapper.Setup(m => m.Map<List<TaskReadDto>>(tasks)).Returns(tasksDtos);
 
-            var result = await _controller.Get(model);
+            var result = await _apiController.Get(model);
 
-            Assert.IsType<JsonResult>(result);
+            Assert.IsType<OkObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task Delete_WithValidId_ReturnsNoContent() {
+            var id = 1;
+            _taskService.Setup(x => x.DeleteAsync(id))
+                   .Returns(Task.CompletedTask);
+
+            var result = await _apiController.Delete(id);
+
+            Assert.IsType<NoContentResult>(result);
+            _taskService.Verify(x => x.DeleteAsync(id), Times.Once);
         }
     }
 }

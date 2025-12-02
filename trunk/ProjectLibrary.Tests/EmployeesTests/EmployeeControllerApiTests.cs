@@ -1,15 +1,18 @@
-﻿using Moq;
-using Microsoft.AspNetCore.Mvc;
-using ProjectsLibrary.DTOs.Project;
-using ProjectsLibrary.DTOs.Employee;
-using ProjectsLibrary.Domain.Models.Results;
+﻿using Microsoft.AspNetCore.Mvc;
+using Moq;
 using ProjectsLibrary.Domain.Models.Entities;
 using ProjectsLibrary.Domain.Models.RequestModels;
+using ProjectsLibrary.Domain.Models.Results;
+using ProjectsLibrary.DTOs.Employee;
+using ProjectsLibrary.DTOs.Project;
 
 namespace ProjectLibrary.Tests.EmployeesTests {
-    public class EmployeeControllerGetTests : EmployeeControllerTests {
+    public class EmployeeControllerApiTests : EmployeeControllerTests {
         [Fact]
-        public async Task Get_WithValidModel_ReturnsJsonResult() {
+        public async Task Get_WithValidModel_ReturnsOk() {
+            var employees = new List<Employee>();
+            var companyDtos = new List<EmployeeReadDto>();
+
             var model = new GetPagedModel {
                 Draw = 1,
                 Start = 0,
@@ -20,22 +23,10 @@ namespace ProjectLibrary.Tests.EmployeesTests {
                 SortDirection = "asc"
             };
 
-            var employees = new List<Employee>
-            {
-                new() { Id = 1, FirstName = "Jhon", LastName = "Doeone", Email = "testemail@test.te" },
-                new() { Id = 2, FirstName = "Jhon", LastName = "Doetwo", Email = "testemail@test.te" }
-            };
-
             var pagedResult = new PagedResult<Employee> {
                 Datas = employees,
                 TotalRecords = 100,
                 FilteredRecords = 50
-            };
-
-            var companyDtos = new List<EmployeeReadDto>
-            {
-                new() { Id = 1, FirstName = "Jhon", LastName = "Doeone", Email = "testemail@test.te" },
-                new() { Id = 2, FirstName = "Jhon", LastName = "Doetwo", Email = "testemail@test.te" }
             };
 
             _employeeService.Setup(s => s.GetPaginatedAsync(
@@ -47,13 +38,13 @@ namespace ProjectLibrary.Tests.EmployeesTests {
             _mapper.Setup(m => m.Map<List<EmployeeReadDto>>(employees))
                    .Returns(companyDtos);
 
-            var result = await _controller.Get(model);
+            var result = await _apiController.Get(model);
 
-            Assert.IsType<JsonResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public async Task GetDataOnlyWithoutWorking_WithValidProjectId_ReturnsFilteredEmployees() {
+        public async Task GetDataOnlyWithoutWorking_WithValidProjectId_ReturnsOk() {
             var projectId = 1;
 
             var project = new Project {
@@ -95,7 +86,7 @@ namespace ProjectLibrary.Tests.EmployeesTests {
             _mapper.Setup(m => m.Map<List<EmployeeReadDto>>(expectedFilteredEmployees))
                 .Returns(expectedMappedDtos);
 
-            var result = await _controller.GetDataOnlyWithoutWorking(projectId);
+            var result = await _apiController.GetAvailable(projectId);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnedDtos = Assert.IsType<List<EmployeeReadDto>>(okResult.Value);
@@ -111,7 +102,7 @@ namespace ProjectLibrary.Tests.EmployeesTests {
         }
 
         [Fact]
-        public async Task GetEmployeeWithTasks_WithValidId_ReturnsEmployeeWithTasks() {
+        public async Task GetEmployeeWithTasks_WithValidId_ReturnsOk() {
             var employeeId = 1;
             var employee = new Employee {
                 Id = employeeId,
@@ -137,7 +128,7 @@ namespace ProjectLibrary.Tests.EmployeesTests {
             _mapper.Setup(m => m.Map<EmployeeReadDto>(employee))
                 .Returns(employeeDto);
 
-            var result = await _controller.GetEmployeeWithTasks(employeeId);
+            var result = await _apiController.GetEmployeeWithTasks(employeeId);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnedDto = Assert.IsType<EmployeeReadDto>(okResult.Value);
@@ -152,7 +143,7 @@ namespace ProjectLibrary.Tests.EmployeesTests {
         }
 
         [Fact]
-        public async Task GetEmployeeWithProjects_WithValidId_ReturnsEmployeeWithProjects() {
+        public async Task GetEmployeeWithProjects_WithValidId_ReturnsOk() {
             var employeeId = 1;
             var employee = new Employee {
                 Id = employeeId,
@@ -183,7 +174,7 @@ namespace ProjectLibrary.Tests.EmployeesTests {
             _mapper.Setup(m => m.Map<EmployeeReadDto>(employee))
                 .Returns(employeeDto);
 
-            var result = await _controller.GetEmployeeWithProjects(employeeId);
+            var result = await _apiController.GetEmployeeWithProjects(employeeId);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnedDto = Assert.IsType<EmployeeReadDto>(okResult.Value);
@@ -195,6 +186,46 @@ namespace ProjectLibrary.Tests.EmployeesTests {
 
             _employeeService.Verify(s => s.GetEmployeeWithProjectsNoTrackingAsync(employeeId), Times.Once);
             _mapper.Verify(m => m.Map<EmployeeReadDto>(employee), Times.Once);
+        }
+
+        [Fact]
+        public async Task Delete_WithValidId_ReturnsNoContent() {
+            var id = 1;
+            _employeeService.Setup(x => x.DeleteAsync(id))
+                   .Returns(Task.CompletedTask);
+
+            var result = await _apiController.Delete(id);
+
+            Assert.IsType<NoContentResult>(result);
+            _employeeService.Verify(x => x.DeleteAsync(id), Times.Once);
+        }
+
+        [Fact]
+        public async Task AssignTaskToEmployee_WithValidIds_ReturnsNoContent() {
+            var employeeId = 1;
+            var taskId = 100;
+
+            _employeeService.Setup(s => s.AssignTaskToEmployee(employeeId, taskId))
+                .Returns(Task.CompletedTask);
+
+            var result = await _apiController.AssignTaskToEmployee(employeeId, taskId);
+
+            Assert.IsType<NoContentResult>(result);
+            _employeeService.Verify(s => s.AssignTaskToEmployee(employeeId, taskId), Times.Once);
+        }
+
+        [Fact]
+        public async Task UnassignTaskFromEmployee_WithValidIds_ReturnsNoContent() {
+            var employeeId = 1;
+            var taskId = 100;
+
+            _employeeService.Setup(s => s.UnassignTaskToEmployee(employeeId, taskId))
+                .Returns(Task.CompletedTask);
+
+            var result = await _apiController.UnassignTaskFromEmployee(employeeId, taskId);
+
+            Assert.IsType<NoContentResult>(result);
+            _employeeService.Verify(s => s.UnassignTaskToEmployee(employeeId, taskId), Times.Once);
         }
     }
 }

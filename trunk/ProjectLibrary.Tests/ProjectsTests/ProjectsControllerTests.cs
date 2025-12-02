@@ -12,6 +12,7 @@ namespace ProjectLibrary.Tests.ProjectsTests {
         protected readonly Mock<ICompanyService> _companyService;
         protected readonly Mock<IProjectViewModelBuilder> _viewModelBuilder;
         protected readonly ProjectsController _controller;
+        protected readonly ProjectsLibrary.MVC.Controllers.Api.ProjectsController _apiController;
 
         public ProjectsControllerTests() {
             _mapper = new Mock<IMapper>();
@@ -20,6 +21,7 @@ namespace ProjectLibrary.Tests.ProjectsTests {
             _companyService = new Mock<ICompanyService>();
             _viewModelBuilder = new Mock<IProjectViewModelBuilder>();
             _controller = new ProjectsController(_viewModelBuilder.Object, _projectService.Object, _mapper.Object);
+            _apiController = new ProjectsLibrary.MVC.Controllers.Api.ProjectsController(_projectService.Object, _mapper.Object);
         }
     }
 }

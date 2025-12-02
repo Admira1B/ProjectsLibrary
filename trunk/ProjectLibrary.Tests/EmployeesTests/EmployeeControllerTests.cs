@@ -11,14 +11,15 @@ namespace ProjectLibrary.Tests.EmployeesTests {
         protected readonly Mock<IProjectService> _projectService;
         protected readonly Mock<IEmployeeViewModelBuilder> _viewModelBuilder;
         protected readonly EmployeesController _controller;
+        protected readonly ProjectsLibrary.MVC.Controllers.Api.EmployeesController _apiController;
 
         public EmployeeControllerTests() {
             _mapper = new Mock<IMapper>();
             _employeeService = new Mock<IEmployeeService>();
             _projectService = new Mock<IProjectService>();
             _viewModelBuilder = new Mock<IEmployeeViewModelBuilder>();
-
-            _controller = new EmployeesController(_viewModelBuilder.Object, _employeeService.Object, _projectService.Object, _mapper.Object);
+            _controller = new EmployeesController(_viewModelBuilder.Object, _employeeService.Object, _mapper.Object);
+            _apiController = new ProjectsLibrary.MVC.Controllers.Api.EmployeesController(_employeeService.Object, _projectService.Object, _mapper.Object);
         }
     }
 }

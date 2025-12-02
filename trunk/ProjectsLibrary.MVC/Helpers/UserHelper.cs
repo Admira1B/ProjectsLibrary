@@ -5,6 +5,9 @@ using System.Security.Claims;
 namespace ProjectsLibrary.MVC.Helpers {
     public static class UserHelper {
         public static EmployeeRole GetUserRole(ClaimsPrincipal user) {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
             var roleString = user.FindFirst("employeeRole")?.Value ?? null;
             if (roleString == null)
                 throw new NoRoleClaimToCurrentUserException(message: "Cannot found claim with user role information");
@@ -17,6 +20,9 @@ namespace ProjectsLibrary.MVC.Helpers {
         }
 
         public static int GetUserId(ClaimsPrincipal user) {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
             var userIdString = user.FindFirstValue("employeeId");
             return Convert.ToInt32(userIdString);
         }

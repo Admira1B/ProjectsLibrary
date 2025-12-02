@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 namespace ProjectLibrary.Tests.HomeTests {
     public class HomeControllerLogoutTests : HomeControllerTests {
         [Fact]
-        public async Task Logout_DeletesAuthCookieAndRedirectsToHome() {
+        public async Task Logout_DeletesAuthCookieAndRedirectsToIndex() {
             var responseCookiesMock = new Mock<IResponseCookies>();
             var httpContextMock = new Mock<HttpContext>();
             var responseMock = new Mock<HttpResponse>();
@@ -20,14 +20,13 @@ namespace ProjectLibrary.Tests.HomeTests {
             var result = await _controller.Logout();
 
             var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-            Assert.Equal("Index", redirectResult.ActionName);
-            Assert.Equal("Home", redirectResult.ControllerName);
+            Assert.Equal(nameof(_controller.Index), redirectResult.ActionName);
 
             responseCookiesMock.Verify(c => c.Delete("auth-t"), Times.Once);
         }
 
         [Fact]
-        public async Task Logout_Always_RedirectsToHomeIndex() {
+        public async Task Logout_Always_RedirectsToIndex() {
             var responseCookiesMock = new Mock<IResponseCookies>();
             var httpContextMock = new Mock<HttpContext>();
             var responseMock = new Mock<HttpResponse>();
@@ -42,8 +41,7 @@ namespace ProjectLibrary.Tests.HomeTests {
             var result = await _controller.Logout();
 
             var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-            Assert.Equal("Index", redirectResult.ActionName);
-            Assert.Equal("Home", redirectResult.ControllerName);
+            Assert.Equal(nameof(_controller.Index), redirectResult.ActionName);
         }
     }
 }

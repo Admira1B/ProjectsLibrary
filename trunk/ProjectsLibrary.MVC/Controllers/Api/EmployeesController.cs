@@ -16,9 +16,9 @@ namespace ProjectsLibrary.MVC.Controllers.Api {
         private readonly IProjectService _projectService = projectService;
         private readonly IMapper _mapper = mapper;
 
-        [HttpGet("project/{id:int}/available-employees")]
+        [HttpGet("{id:int}/available-employees")]
         [Authorize(Policy = PolicyLevelName.BaseLevel)]
-        public async Task<ActionResult> GetDataOnlyWithoutWorking(int id) {
+        public async Task<ActionResult> GetAvailable(int id) {
             var project = await _projectService.GetByIdNoTrackingAsync(id);
             var employees = await _service.GetDataOnlyAsync();
 

@@ -23,7 +23,7 @@ namespace ProjectLibrary.Tests.TasksTests {
         }
 
         [Fact]
-        public async Task Add_WhenCalled_ReturnsViewWithCorrectModel() {
+        public async Task Add_WhenCalled_ReturnsView() {
             var user = MockClaimHelper.BuildEmployeeClaim();
 
             _controller.ControllerContext = new ControllerContext() {
@@ -40,7 +40,7 @@ namespace ProjectLibrary.Tests.TasksTests {
         }
 
         [Fact]
-        public async Task Details_WhenCalled_ReturnsViewWithCorrectModel() {
+        public async Task Details_WhenCalled_ReturnsView() {
             var user = MockClaimHelper.BuildEmployeeClaim();
 
             _controller.ControllerContext = new ControllerContext() {

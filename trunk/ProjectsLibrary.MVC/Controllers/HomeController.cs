@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectsLibrary.Domain.Contracts.Services;
 using ProjectsLibrary.Domain.Exceptions;
 using ProjectsLibrary.Domain.Models.Entities;
-using ProjectsLibrary.DTOs.Employee;
 using ProjectsLibrary.MVC.Models;
 using ProjectsLibrary.MVC.Models.Home;
 using ProjectsLibrary.MVC.ViewModelBuilders.Interfaces;
@@ -37,32 +36,44 @@ namespace ProjectsLibrary.MVC.Controllers {
         public async Task<IActionResult> Logout() {
             Response.Cookies.Delete("auth-t");
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
-        public async Task<ActionResult> Register(EmployeeAddDto employee) {
+        public async Task<ActionResult> Registration(RegistrationViewModel model) {
+            if (!ModelState.IsValid) {
+                return View(model);
+            }
+
+            if (model.Employee == null) {
+                return View(model);
+            }
+
             try {
-                var employeeEntity = _mapper.Map<Employee>(employee);
+                var employee = _mapper.Map<Employee>(model.Employee);
 
-                await _employeeService.RegisterAsync(employeeEntity, employee.Password);
+                await _employeeService.RegisterAsync(employee, model.Employee.Password);
 
-                return RedirectToAction("Login");
+                return RedirectToAction(nameof(Login));
             } catch (EmployeeAlreadyExistsException ex) {
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            var model = new RegistrationViewModel {
-                Employee = employee,
-            };
-
-            return View("Registration", model);
+            return View(model);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Login(EmployeeLoginDto employee) {
+        public async Task<ActionResult> Login(LoginViewModel model) {
+            if (!ModelState.IsValid) {
+                return View(model);
+            }
+
+            if (model.Employee == null) {
+                return View(model);
+            }
+
             try {
-                var token = await _employeeService.LoginAsync(employee.Email, employee.Password);
+                var token = await _employeeService.LoginAsync(model.Employee.Email, model.Employee.Password);
 
                 AppendTokenToCookies(token);
 
@@ -75,11 +86,7 @@ namespace ProjectsLibrary.MVC.Controllers {
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            var model = new LoginViewModel {
-                Employee = employee,
-            };
-
-            return View("Login", model);
+            return View(model);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

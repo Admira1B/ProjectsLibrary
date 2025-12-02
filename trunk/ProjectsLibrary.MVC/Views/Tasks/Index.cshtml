@@ -107,8 +107,7 @@
 
         const TasksConfig = {
             urls: {
-                getTasks: '@Url.Action("Get", "Tasks")',
-                deleteTask: '@Url.Action("Delete", "Tasks")',
+                apiUrl: '/Api/Tasks',
                 taskDetails: '@Url.Action("Details", "Tasks")'
             },
             constants: {
@@ -147,15 +146,21 @@
                         zeroRecords: 'No matching tasks found'
                     },
                     ajax: {
-                      url: TasksConfig.urls.getTasks,
-                      type: 'POST',
+                      url: `${TasksConfig.urls.apiUrl}`,
+                      type: 'GET',
                       dataType: 'json',
                       data: function (d) {
-                        var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
-                        d.sortColumn = d.columns[order.column].name;
-                        d.sortDirection = order.dir;
-                        d.searchingValue = d.search.value;
-                        d.searchableFieldsNames = ['name'];
+                            var order = d.order && d.order.length ? d.order[0] : { column: 0, dir: 'asc' };
+
+                            return {
+                                draw: d.draw,
+                                start: d.start,
+                                length: d.length,
+                                searchValue: d.search.value,
+                                sortColumn: d.columns[order.column].name,
+                                sortDirection: order.dir,
+                                searchableFieldsNames: ['name']
+                            };
                       },
                       error: function(xhr, error, thrown) {
                           console.error('DataTables AJAX error:', error);
@@ -274,7 +279,7 @@
                 $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
 
                 $.ajax({
-                    url: `Tasks/Delete/${id}`,
+                    url: `${TasksConfig.urls.apiUrl}/${id}`,
                     type: 'DELETE',
                     dataType: 'json',
                     success: function (response) {

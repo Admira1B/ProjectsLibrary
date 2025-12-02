@@ -16,7 +16,7 @@
     </div>
 
     <div class="body-container rounded-3">
-        <form asp-action="Update" asp-controller="Tasks" method="post" asp-route-id="@Model.Id"
+        <form asp-action="Details" asp-controller="Tasks" method="post" asp-route-id="@Model.Id"
               class="w-100 bg-white p-4 shadow-sm rounded-top needs-validation" novalidate>
             <h2 class="mb-3"><strong>Task information</strong></h2>
 
@@ -54,10 +54,10 @@
 
                             if (num == (int)Model.Task.Status)
                             {
-                                <option value="num" selected>@status.StatusToString()</option>
+                                <option value="@num" selected>@status.StatusToString()</option>
                                 continue;
                             }
-                            <option value="num">@status.StatusToString()</option>
+                            <option value="@num">@status.StatusToString()</option>
                         }
                     </select>
                     <span asp-validation-for="Task.Status" class="invalid-feedback d-block"></span>

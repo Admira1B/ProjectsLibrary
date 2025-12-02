@@ -4,11 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectsLibrary.CompositionRoot.Autorization;
 using ProjectsLibrary.Domain.Contracts.Services;
 using ProjectsLibrary.Domain.Models.Entities;
-using ProjectsLibrary.Domain.Models.Enums;
-using ProjectsLibrary.Domain.Models.RequestModels;
-using ProjectsLibrary.Domain.Models.Results;
-using ProjectsLibrary.DTOs.Task;
-using ProjectsLibrary.MVC.Helpers;
+using ProjectsLibrary.MVC.Models.Task;
 using ProjectsLibrary.MVC.ViewModelBuilders.Interfaces;
 
 namespace ProjectsLibrary.MVC.Controllers {
@@ -44,78 +40,31 @@ namespace ProjectsLibrary.MVC.Controllers {
 
         [HttpPost]
         [Authorize(Policy = PolicyLevelName.BaseLevel)]
-        public async Task<ActionResult> Get(GetPagedModel model) {
-            var builtParams = ControllerHelper.BuildGetMethodModelParams(model);
-
-            int? userId = null;
-            var userRole = UserHelper.GetUserRole(User);
-
-            if (userRole <= EmployeeRole.Manager) {
-                userId = UserHelper.GetUserId(User);
+        public async Task<ActionResult> Add(AddTaskViewModel model) {
+            if (!ModelState.IsValid) {
+                    return View(model);
             }
 
-            var tasksPaged = await _service.GetPaginatedAsync(
-                filterParams: builtParams.filterParams,
-                sortParams: builtParams.sortParams,
-                pageParams: builtParams.pageParams,
-                employeeId: userId);
+            var task = _mapper.Map<TaskPL>(model.Task);
+            await _service.AddAsync(task);
 
-            var tasksDtos = _mapper.Map<List<TaskReadDto>>(tasksPaged.Datas);
-
-            var result = new PagedResult<TaskReadDto>() {
-                Datas = tasksDtos,
-                FilteredRecords = tasksPaged.FilteredRecords,
-                TotalRecords = tasksPaged.TotalRecords
-            };
-
-            return Json
-            (new {
-                model.Draw,
-                recordsFiltered = result.FilteredRecords,
-                recordsTotal = result.TotalRecords,
-                data = result.Datas
-            });
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [Authorize(Policy = PolicyLevelName.BaseLevel)]
-        public async Task<ActionResult> Add(TaskAddDto task) {
+        public async Task<ActionResult> Details(DetailsTaskViewModel model) {
             if (!ModelState.IsValid) {
-                var model = await _viewModelBuilder.BuildAddViewModelAsync(User, null, task);
-                return View("Add", model);
-            }
-
-            var taskEntity = _mapper.Map<TaskPL>(task);
-            await _service.AddAsync(taskEntity);
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        [Authorize(Policy = PolicyLevelName.BaseLevel)]
-        public async Task<ActionResult> Update([FromRoute] int id, TaskUpdateDto task) {
-            if (!ModelState.IsValid) {
-                var model = await _viewModelBuilder.BuildDetailsViewModelAsync(id, User, task);
-
-                if (model == null) {
-                    return NotFound();
+                if (!(model.TaskCreator == null)) {
+                    return View(model);
                 }
-
-                return View("Details", model);
             }
 
-            var taskEntity = _mapper.Map<TaskPL>(task);
-            taskEntity.Id = id;
-            await _service.UpdateAsync(taskEntity);
+            var task = _mapper.Map<TaskPL>(model.Task);
+            task.Id = model.Id;
+            await _service.UpdateAsync(task);
 
-            return RedirectToAction("Index");
-        }
-
-        [HttpDelete]
-        [Authorize(Policy = PolicyLevelName.BaseLevel)]
-        public async Task<ActionResult> Delete([FromRoute] int id) {
-            await _service.DeleteAsync(id);
-            return NoContent();
+            return RedirectToAction(nameof(Index));
         }
     }
 }

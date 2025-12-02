@@ -12,6 +12,7 @@ namespace ProjectLibrary.Tests.TasksTests {
         protected readonly Mock<IEmployeeService> _employeeService;
         protected readonly Mock<ITaskViewModelBuilder> _viewModelBuilder;
         protected readonly TasksController _controller;
+        protected readonly ProjectsLibrary.MVC.Controllers.Api.TasksController _apiController;
 
         public TasksControllerTests() {
             _mapper = new Mock<IMapper>();
@@ -20,6 +21,7 @@ namespace ProjectLibrary.Tests.TasksTests {
             _employeeService = new Mock<IEmployeeService>();
             _viewModelBuilder = new Mock<ITaskViewModelBuilder>();
             _controller = new TasksController(_viewModelBuilder.Object, _taskService.Object, _mapper.Object);
+            _apiController = new ProjectsLibrary.MVC.Controllers.Api.TasksController(_taskService.Object, _mapper.Object);
         }
     }
 }
