@@ -1,0 +1,6 @@
+@ProjectsLibrary.MinimalAPI_HostAddress = http://localhost:5080
+
+GET {{ProjectsLibrary.MinimalAPI_HostAddress}}/
+Accept: application/json
+
+###

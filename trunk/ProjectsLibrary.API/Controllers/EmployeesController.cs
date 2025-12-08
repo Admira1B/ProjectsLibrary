@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ProjectsLibrary.API.Extensions;
+using ProjectsLibrary.API.Helpers;
 using ProjectsLibrary.CompositionRoot.Autorization;
 using ProjectsLibrary.Domain.Contracts.Services;
 using ProjectsLibrary.Domain.Models.Entities;
@@ -16,6 +16,7 @@ namespace ProjectsLibrary.API.Controllers {
         private readonly IEmployeeService _service = service;
         private readonly IMapper _mapper = mapper;
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody] EmployeeAddDto employeeDto) {
             var employee = _mapper.Map<Employee>(employeeDto);
@@ -25,8 +26,9 @@ namespace ProjectsLibrary.API.Controllers {
             return NoContent();
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<ActionResult> Login(EmployeeLoginDto loginDto) {
+        public async Task<ActionResult> Login([FromBody] EmployeeLoginDto loginDto) {
             var token = await _service.LoginAsync(loginDto.Email, loginDto.Password);
 
             AppendTokenToCookies(token);
@@ -37,7 +39,7 @@ namespace ProjectsLibrary.API.Controllers {
         [Authorize(Policy = PolicyLevelName.BaseLevel)]
         [HttpGet]
         public async Task<ActionResult<PagedResult<EmployeeReadDto>>> Get([FromQuery] GetPagedModel model) {
-            var builtParams = ControllersExtensions.BuildGetMethodModelParams(model);
+            var builtParams = ControllerHelper.BuildGetMethodModelParams(model);
 
             var employeesPaged = await _service.GetPaginatedAsync(
                 filterParams: builtParams.filterParams,
@@ -102,7 +104,11 @@ namespace ProjectsLibrary.API.Controllers {
         }
 
         private void AppendTokenToCookies(string token) {
-            HttpContext.Response.Cookies.Append("auth-t", token);
+            HttpContext.Response.Cookies.Append("auth-t", token, new CookieOptions {
+                HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Strict,
+            });
         }
     }
 }

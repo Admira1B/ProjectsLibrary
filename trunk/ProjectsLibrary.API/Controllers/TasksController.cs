@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ProjectsLibrary.API.Extensions;
+using ProjectsLibrary.API.Helpers;
 using ProjectsLibrary.CompositionRoot.Autorization;
 using ProjectsLibrary.Domain.Contracts.Services;
 using ProjectsLibrary.Domain.Models.Entities;
@@ -19,7 +19,7 @@ namespace ProjectsLibrary.API.Controllers {
         [Authorize(Policy = PolicyLevelName.BaseLevel)]
         [HttpGet]
         public async Task<ActionResult<PagedResult<TaskReadDto>>> Get([FromQuery] GetPagedModel model) {
-            var builtParams = ControllersExtensions.BuildGetMethodModelParams(model);
+            var builtParams = ControllerHelper.BuildGetMethodModelParams(model);
 
             var tasksPaged = await _service.GetPaginatedAsync(
                 filterParams: builtParams.filterParams,

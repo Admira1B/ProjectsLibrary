@@ -1,8 +1,8 @@
 ﻿using ProjectsLibrary.Domain.Models.Enums;
 using ProjectsLibrary.Domain.Models.RequestModels;
 
-namespace ProjectsLibrary.API.Extensions {
-    public static class ControllersExtensions {
+namespace ProjectsLibrary.API.Helpers {
+    public static class ControllerHelper {
         public static (FilterParams filterParams, SortParams sortParams, PageParams pageParams) BuildGetMethodModelParams(GetPagedModel model) {
             var filterParams = new FilterParams() {
                 SearchingValue = model.SearchingValue,
