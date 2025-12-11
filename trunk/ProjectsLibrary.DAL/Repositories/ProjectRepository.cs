@@ -70,7 +70,6 @@ namespace ProjectsLibrary.DAL.Repositories {
             .SetProperty(p => p.EndDate, project.EndDate)
             .SetProperty(p => p.ProjectManagerId, project.ProjectManagerId)
             .SetProperty(p => p.CompanyId, project.CompanyId));
-
         }
     }
 }

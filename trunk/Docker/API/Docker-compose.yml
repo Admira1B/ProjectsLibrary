@@ -1,0 +1,35 @@
+﻿services:
+    app:
+        container_name: projects_library_api
+        build:
+            context: ../..
+            dockerfile: Docker/API/Dockerfile
+        ports: 
+            - "8080:8080"
+        depends_on: 
+            - database
+        restart: unless-stopped
+        networks:
+            - app-network
+        environment: 
+            - ConnectionStrings__DefaultConnectionAPI=Server=database,1433;Database=ProjectsLibraryDB;User Id=sa;Password=ProjectLibraryStrongPassword!QWERTYqaz123;TrustServerCertificate=True;
+    database:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        container_name: sql_server_database
+        ports: 
+            - "1433:1433"
+        environment:
+            - ACCEPT_EULA=Y 
+            - MSSQL_PID=Express
+            - MSSQL_DATABASE=ProjectsLibraryDB
+            - MSSQL_SA_PASSWORD=ProjectLibraryStrongPassword!QWERTYqaz123
+        volumes:
+            - sqlserver_data:/var/opt/mssql
+        networks:
+            - app-network
+volumes:
+  sqlserver_data:
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,16 @@
+**/.git
+**/.vs
+**/bin
+**/obj
+**/node_modules
+**/TestResults
+**/*.user
+**/*.suo
+**/*.db
+**/Dockerfile
+**/.dockerignore
+**/README.md
+**/LICENSE
+**/.gitignore
+**/appsettings.*.json
+*.sln
